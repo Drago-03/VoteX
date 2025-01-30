@@ -15,7 +15,7 @@ export const SignUp: React.FC = () => {
     email: '',
     phone: '',
     address: '',
-    panCard: '',
+    voterid: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,7 +93,7 @@ export const SignUp: React.FC = () => {
           />
 
           <Input
-            label="Complete Address"
+            label="Resident Address"
             name="address"
             required
             value={formData.address}
@@ -102,12 +102,12 @@ export const SignUp: React.FC = () => {
           />
 
           <Input
-            label="PAN Card Number"
-            name="panCard"
+            label="Voter ID"
+            name="voterid"
             required
-            value={formData.panCard}
+            value={formData.voterid}
             onChange={handleChange}
-            error={formData.panCard && !validatePAN(formData.panCard) ? 'Invalid PAN format (e.g., ABCDE1234F)' : undefined}
+            error={formData.voterid && !validatePAN(formData.voterid) ? 'Invalid PAN format (e.g., ABCDE1234F)' : undefined}
             icon={<CreditCard className="h-5 w-5 text-gray-400" />}
           />
 

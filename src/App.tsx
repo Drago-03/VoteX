@@ -13,6 +13,9 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/" element={<Navigate to="/signin" replace />} />
         </Routes>
+        <footer className="footer">
+          @2025 Indie Hub All rights reserved
+        </footer>
       </AuthProvider>
     </Router>
   );
