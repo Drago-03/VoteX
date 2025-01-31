@@ -15,7 +15,7 @@ export const SignUp: React.FC = () => {
     email: '',
     phone: '',
     address: '',
-    voterid: '',
+    voterId: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,9 +28,9 @@ export const SignUp: React.FC = () => {
     await signUp(formData);
   };
 
-  const validatePAN = (pan: string) => {
-    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
-    return panRegex.test(pan);
+  const validatevoterid = (voterId: string) => {
+    const voteridRegex = /^[A-Z]{3}[0-9]{7}$/;
+    return voteridRegex.test(voterId);
   };
 
   return (
@@ -102,12 +102,12 @@ export const SignUp: React.FC = () => {
           />
 
           <Input
-            label="Voter ID"
-            name="voterid"
+            label="EPIC Number"
+            name="voterId"
             required
-            value={formData.voterid}
+            value={formData.voterId}
             onChange={handleChange}
-            error={formData.voterid && !validatePAN(formData.voterid) ? 'Invalid PAN format (e.g., ABCDE1234F)' : undefined}
+            error={formData.voterId && !validatevoterid(formData.voterId) ? 'Invalid Voter ID format (e.g., ABC1234567)' : undefined}
             icon={<CreditCard className="h-5 w-5 text-gray-400" />}
           />
 
