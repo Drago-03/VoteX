@@ -12,13 +12,16 @@ A secure electronic voting system leveraging blockchain technology.
 
 ## Setup Instructions
 
-1. Clone the repository
-2. Install dependencies:
+- Clone the repository
+- Install dependencies:
+
 ```bash
 npm install
 ```
-3. Configure environment variables
-4. Start the application:
+
+- Configure environment variables
+- Start the application:
+
 ```bash
 npm start
 ```

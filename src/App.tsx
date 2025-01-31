@@ -206,8 +206,8 @@ function App() {
                             </div>
                             <div className="flex-grow bg-gray-200 rounded-full h-2">
                               <div 
-                                className={`h-2 rounded-full ${
-                                  step.confidence > 85 ? 'bg-green-500' : 'bg-red-500'
+                                className={`confidence-bar ${
+                                  step.confidence > 85 ? 'confidence-bar-success' : 'confidence-bar-error'
                                 }`}
                                 style={{ width: `${step.confidence}%` }}
                               />

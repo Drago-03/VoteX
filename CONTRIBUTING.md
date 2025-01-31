@@ -30,6 +30,7 @@ This project and everyone participating in it is governed by our Code of Conduct
 ## Reporting Bugs
 
 Report bugs using GitHub's [issue tracker](../../issues)
+
 - Use a clear and descriptive title
 - Describe the exact steps to reproduce the problem
 - Provide specific examples if possible
