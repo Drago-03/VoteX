@@ -1,4 +1,5 @@
-import { Translate } from '@google-cloud/translate/build/src/v2';
+import { v2 } from '@google-cloud/translate';
+const { Translate } = v2;
 
 interface TranslationResult {
   translatedText: string;
@@ -15,7 +16,7 @@ interface SupportedLanguage {
 
 export class TranslationService {
   private static instance: TranslationService;
-  private translate: Translate;
+  private translate: v2.Translate;
   private supportedIndianLanguages: SupportedLanguage[] = [
     { code: 'hi', name: 'Hindi', nativeName: 'हिंदी' },
     { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
@@ -58,7 +59,8 @@ export class TranslationService {
       };
     } catch (error) {
       console.error('Translation failed:', error);
-      throw new Error(`Translation failed: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      throw new Error(`Translation failed: ${errorMessage}`);
     }
   }
 
@@ -73,7 +75,8 @@ export class TranslationService {
       }));
     } catch (error) {
       console.error('Batch translation failed:', error);
-      throw new Error(`Batch translation failed: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      throw new Error(`Batch translation failed: ${errorMessage}`);
     }
   }
 
@@ -87,7 +90,8 @@ export class TranslationService {
       return detection.language;
     } catch (error) {
       console.error('Language detection failed:', error);
-      throw new Error(`Language detection failed: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      throw new Error(`Language detection failed: ${errorMessage}`);
     }
   }
 

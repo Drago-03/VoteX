@@ -3,9 +3,16 @@
         "faceapi",
         "Matdata",
         "Mobilenetv",
+        "Odia",
         "Suraksha",
         "touchid",
         "validatevoterid",
-        "voterid"
+        "voterid",
+        "मराठी",
+        "ਪੰਜਾਬੀ",
+        "ગુજરાતી",
+        "தமிழ்",
+        "ಕನ್ನಡ",
+        "മലയാളം"
     ]
 }
