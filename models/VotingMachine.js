@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 
 const votingMachineSchema = new mongoose.Schema({
@@ -18,24 +19,7 @@ const votingMachineSchema = new mongoose.Schema({
   lastCheckedAt: {
     type: Date,
     default: Date.now
-  },
-  currentLocation: {
-    type: {
-      type: String,
-      enum: ['Point'],
-      required: true
-    },
-    coordinates: {
-      type: [Number], // [longitude, latitude]
-      required: true
-    }
-  },
-  assignedBoothId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'PollingBooth'
   }
 });
-
-votingMachineSchema.index({ currentLocation: '2dsphere' });
 
 module.exports = mongoose.model('VotingMachine', votingMachineSchema);
