@@ -8,7 +8,10 @@ import {
   Search,
   RefreshCw
 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { firebase } from '../lib/firebase';
+import { collection, query, orderBy, onSnapshot, addDoc, Timestamp, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import type { VerificationLog } from '../lib/firebase';
 
 type VerificationStats = {
   total: number;
@@ -36,21 +39,39 @@ export function StaffDashboard() {
   const [voters, setVoters] = useState<Voter[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [logs, setLogs] = useState<VerificationLog[]>([]);
 
   useEffect(() => {
     fetchStats();
     fetchVoters();
   }, []);
 
+  useEffect(() => {
+    const q = query(
+      collection(db, 'verification_logs'),
+      orderBy('createdAt', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const newLogs = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as VerificationLog[];
+      setLogs(newLogs);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const fetchStats = async () => {
     try {
-      const { data: verificationLogs } = await supabase
-        .from('verification_logs')
-        .select('status');
+      const verificationLogsRef = collection(db, 'verification_logs');
+      const querySnapshot = await getDocs(verificationLogsRef);
+      const verificationLogs = querySnapshot.docs.map(doc => doc.data());
 
-      const total = verificationLogs?.length || 0;
-      const success = verificationLogs?.filter(log => log.status === 'success').length || 0;
-      const failed = verificationLogs?.filter(log => log.status === 'failed').length || 0;
+      const total = verificationLogs.length;
+      const success = verificationLogs.filter((log) => (log as { status: string }).status === 'success').length;
+      const failed = verificationLogs.filter((log) => (log as { status: string }).status === 'failed').length;
 
       setStats({
         total,
@@ -65,14 +86,15 @@ export function StaffDashboard() {
 
   const fetchVoters = async () => {
     try {
-      const { data } = await supabase
-        .from('voters')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (data) {
-        setVoters(data);
-      }
+      const votersRef = collection(db, 'voters');
+      const q = query(votersRef, orderBy('created_at', 'desc'));
+      const querySnapshot = await getDocs(q);
+      const data = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Voter[];
+      
+      setVoters(data);
     } catch (error) {
       console.error('Error fetching voters:', error);
     } finally {

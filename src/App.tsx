@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Shield, Users, UserCheck, AlertCircle, Camera, Fingerprint } from 'lucide-react';
 import { StaffDashboard } from './components/StaffDashboard';
-import { supabase } from './lib/supabase';
+import { auth } from './lib/firebase';
+import { db } from './lib/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { collection, addDoc } from 'firebase/firestore';
 
 type VerificationStatus = 'idle' | 'processing' | 'success' | 'failed';
 
@@ -19,16 +22,13 @@ function App() {
       
       const success = Math.random() > 0.5; // Simulate success/failure
       
-      // Log the verification attempt
-      const { error } = await supabase
-        .from('verification_logs')
-        .insert({
-          verification_type: 'face',
-          status: success ? 'success' : 'failed',
-          error_message: success ? null : 'Facial recognition failed',
-        });
-
-      if (error) throw error;
+      // Log the verification attempt using Firestore
+      await addDoc(collection(db, 'verification_logs'), {
+        verification_type: 'face',
+        status: success ? 'success' : 'failed',
+        error_message: success ? null : 'Facial recognition failed',
+        timestamp: new Date()
+      });
       
       setVerificationStatus(success ? 'success' : 'failed');
       if (!success) {
@@ -44,13 +44,10 @@ function App() {
   const handleStaffLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: username,
-        password: password,
-      });
-
-      if (error) throw error;
-      setIsAuthenticated(true);
+      const userCredential = await signInWithEmailAndPassword(auth, username, password);
+      if (userCredential.user) {
+        setIsAuthenticated(true);
+      }
     } catch (error) {
       console.error('Login error:', error);
       alert('Invalid credentials');
