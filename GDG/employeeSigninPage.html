@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VoteX</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+      crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="nav-bar">
+        <img src="logo.png" class="logo" alt="" />
+      </div>
+    </header>
+    <div class="container" id="container">
+      <!-- admin Sign In Form -->
+      <div class="form-container sign-in-container">
+        <form id="signInForm">
+          <h1>Sign In as Employee</h1>
+          <div class="infield">
+            <input type="email" placeholder="Email" name="email" id="userInput" required />
+            <label></label>
+          </div>
+          <div class="infield">
+            <input type="password" placeholder="Password" id="userPassword" required />
+            <label></label>
+          </div>
+          <a href="#" class="forgot">Forgot your password?</a>
+          <button type="submit" id="empSignIn">Sign In</button>
+          <button type="submit" id="adminSignIn">Sign in as Admin</button>
+        </form>
+        
+        <!-- Button to Sign In as Admin -->
+        
+      </div>
+      
+      <div class="overlay-container" id="overlayCon">
+          <img src="user.png" alt="">
+          </div>
+      
+</div>
+
+    <script>
+     document.addEventListener('DOMContentLoaded', function () {
+ 
+    const overlayBtn = document.getElementById('overlayBtn'); // Ensure the button exists in the HTML
+
+    if (overlayBtn) {
+        overlayBtn.addEventListener('click', () => {
+            container.classList.toggle('right-panel-active');
+            overlayBtn.classList.remove('btnScaled');
+            window.requestAnimationFrame(() => {
+                overlayBtn.classList.add('btnScaled');
+            });
+        });
+    }
+
+    // Redirect if a mentor tries to sign up or sign in
+    const redirectToMentorPage = () => {
+        window.location.href = 'adminSignInPage.html'; // Replace with the actual mentor page URL
+    };
+
+    const adminSignInBtn = document.getElementById('adminSignIn');
+    if (adminSignInBtn) {
+        adminSignInBtn.addEventListener('click', () => {
+            redirectToMentorPage(); // Trigger the redirect to mentor sign-in page
+        });
+    }
+});
+const empSignInBtn = document.getElementById('empSignIn');
+const userInput = document.getElementById('userInput');
+const userPassword = document.getElementById('userPassword');
+
+if (empSignInBtn) {
+  empSignInBtn.addEventListener('click', (event) => {
+    event.preventDefault();  // Prevent default behavior (if inside a form)
+
+    if (userInput.value.trim() === "user@xyz.com" && userPassword.value === "123") {
+      window.location.href = 'facial.html';  // Redirect on successful login
+    } else {
+      const errorMsg = document.getElementById('errorMsg');
+      if (errorMsg) {
+        errorMsg.textContent = "Invalid credentials. Please try again.";
+        errorMsg.style.color = "red";
+      } else {
+        alert("Invalid credentials. Please try again.");  // Fallback
+      }
+    }
+  });
+}
+
+
+
+
+  
+  
+
+    </script>
+  </body>
+</html>
