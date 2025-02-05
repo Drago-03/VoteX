@@ -1,0 +1,23 @@
+{
+  "name": "VoteX",
+  "description": "Voting Application",
+  "template": "node-express",
+  "ports": {
+    "app": 3000,
+    "dev": 5173
+  },
+  "tasks": {
+    "dev": "npm run dev",
+    "build": "npm run build",
+    "start": "npm start"
+  },
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "christian-kohler.npm-intellisense",
+    "formulahendry.auto-rename-tag"
+  ]
+}

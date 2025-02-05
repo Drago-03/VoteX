@@ -1,0 +1,23 @@
+{
+  "editor": {
+    "tabSize": 2,
+    "insertSpaces": true,
+    "detectIndentation": true
+  },
+  "terminal": {
+    "shell": "/bin/bash",
+    "shellArgs": ["--login"]
+  },
+  "preview": {
+    "port": 3000,
+    "proxy": {
+      "/api": "http://localhost:3000"
+    }
+  },
+  "debug": {
+    "node": {
+      "program": "${workspaceFolder}/server.js",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+    }
+  }
+}
