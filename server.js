@@ -1,24 +1,64 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const net = require('net');
+const fs = require('fs');
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
+// Debug middleware
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+});
+
 // API routes
 app.get('/api/test', (req, res) => {
     res.json({ message: 'Backend server is running!' });
 });
 
-// Serve static files from the React build directory
-app.use(express.static(path.join(__dirname, 'dashboard', 'dist')));
+// Check if we're in development mode
+const isDevelopment = process.env.NODE_ENV === 'development';
+const dashboardPath = path.join(__dirname, 'dashboard');
+const distPath = path.join(dashboardPath, 'dist');
 
-// Handle React routing, return all requests to React app
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dashboard', 'dist', 'index.html'));
+// Check build status before serving files
+const checkBuildStatus = () => {
+    if (!fs.existsSync(distPath)) {
+        console.error('Error: dist folder not found.');
+        console.error('Please run the following commands:');
+        console.error('1. npm run clean');
+        console.error('2. npm install');
+        console.error('3. npm run build');
+        process.exit(1);
+    }
+};
+
+// Serve static files based on environment
+if (isDevelopment) {
+    console.log('Running in development mode - serving from Vite dev server');
+} else {
+    checkBuildStatus();
+    app.use(express.static(distPath));
+}
+
+// Handle React routing
+app.get('*', (req, res, next) => {
+    if (req.url.startsWith('/api')) {
+        return next();
+    }
+
+    if (isDevelopment) {
+        res.redirect('http://localhost:5173' + req.url);
+    } else {
+        const indexPath = path.join(distPath, 'index.html');
+        if (!fs.existsSync(indexPath)) {
+            return res.status(500).send('Build files not found. Please run npm run build first.');
+        }
+        res.sendFile(indexPath);
+    }
 });
 
 // Error handling middleware
@@ -27,51 +67,10 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something broke!');
 });
 
-// Function to check if a port is in use
-const checkPort = (port) => {
-    return new Promise((resolve, reject) => {
-        const server = net.createServer()
-            .once('error', err => {
-                if (err.code === 'EADDRINUSE') {
-                    resolve(false);
-                } else {
-                    reject(err);
-                }
-            })
-            .once('listening', () => {
-                server.close();
-                resolve(true);
-            })
-            .listen(port);
-    });
-};
-
-// Function to find available port
-const findAvailablePort = async (startPort) => {
-    let port = startPort;
-    while (!(await checkPort(port))) {
-        port++;
-    }
-    return port;
-};
-
-// Start server with port checking
-const startServer = async () => {
-    try {
-        const PORT = await findAvailablePort(process.env.PORT || 5050);
-        app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
-            // Update the config file with new port if different from default
-            if (PORT !== 5050) {
-                console.log(`Note: Using alternate port ${PORT} because port 5050 was busy`);
-            }
-        });
-    } catch (error) {
-        console.error('Failed to start server:', error);
-        process.exit(1);
-    }
-};
-
-// Replace the existing app.listen with startServer()
-startServer();
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Mode: ${isDevelopment ? 'development' : 'production'}`);
+});
 

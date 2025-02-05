@@ -4,14 +4,17 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js",
-    "build": "cd dashboard && npm run build",
+    "dev": "NODE_ENV=development nodemon server.js",
+    "build:dashboard": "cd dashboard && npm install --force && npm run build",
+    "prebuild": "npm install",
+    "build": "npm run build:dashboard",
+    "start": "NODE_ENV=production node server.js",
+    "clean": "rm -rf dashboard/dist node_modules dashboard/node_modules",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "start": "node server.js"
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "express": "^4.17.1",
