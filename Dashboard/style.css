@@ -58,6 +58,7 @@ body {
   width: 750px; /* Decreased container width */
   height: 500px;
   background: rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   border-radius: 15px;
@@ -108,6 +109,7 @@ input {
   width: 100%;
   padding: 12px 8px;
   background: rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   border: 1px solid #333;
@@ -141,6 +143,7 @@ input:focus ~ label {
 
 a {
   background: rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   font-size: 12px;
@@ -163,6 +166,7 @@ button {
   border-radius: 20px;
   border: 1px solid var(--grad-clr1);
   background: rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   font-size: 14px; /* Increased font size of buttons */
