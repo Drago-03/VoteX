@@ -1,7 +1,7 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import firebase from 'firebase/compat/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import firebase from "firebase/compat/app";
+import { getFirestore } from "firebase/firestore";
 
 // Firebase types
 export interface Voter {
@@ -19,8 +19,8 @@ export interface Voter {
 export interface VerificationLog {
   id: string;
   voterId: string;
-  verificationType: 'face' | 'fingerprint';
-  status: 'success' | 'failed';
+  verificationType: "face" | "fingerprint";
+  status: "success" | "failed";
   errorMessage?: string;
   verifiedByStaff: boolean;
   staffId?: string;
@@ -34,11 +34,17 @@ const firebaseConfig = {
   projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
   storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+const initializeFirebase = () => {
+  const app = initializeApp(firebaseConfig);
+  return {
+    auth: getAuth(app),
+    db: getFirestore(app),
+  };
+};
+
+export const { auth, db } = initializeFirebase();
 
 export { firebase };

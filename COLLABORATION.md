@@ -33,6 +33,7 @@
    ```
 
 5. **Linting**
+
    ```bash
    npm run lint
    ```
@@ -116,7 +117,7 @@ const UserCard = (props) => {
 
 1. **Branch Naming**
 
-   ```
+   ```text
    feature/description
    bugfix/description
    hotfix/description
@@ -124,7 +125,7 @@ const UserCard = (props) => {
 
 2. **Commit Messages**
 
-   ```
+   ```text
    feat: add voter verification
    fix: resolve authentication issue
    docs: update API documentation
@@ -260,7 +261,7 @@ This project is licensed under the MIT License.
 
 1. **Semantic Versioning**
 
-   ```
+   ```text
    MAJOR.MINOR.PATCH
    ```
 

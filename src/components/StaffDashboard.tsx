@@ -1,17 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { 
-  Users, 
-  UserCheck, 
-  UserX, 
-  AlertTriangle, 
+import React, { useEffect, useState } from "react";
+import {
+  Users,
+  UserCheck,
+  UserX,
+  AlertTriangle,
   Plus,
   Search,
-  RefreshCw
-} from 'lucide-react';
-import { firebase } from '../lib/firebase';
-import { collection, query, orderBy, onSnapshot, addDoc, Timestamp, getDocs } from 'firebase/firestore';
-import { db } from '../lib/firebase';
-import type { VerificationLog } from '../lib/firebase';
+  RefreshCw,
+} from "lucide-react";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  getDocs,
+} from "firebase/firestore";
+import { db } from "../lib/firebase";
+import type { VerificationLog } from "../lib/firebase";
 
 type VerificationStats = {
   total: number;
@@ -38,8 +43,8 @@ export function StaffDashboard() {
   });
   const [voters, setVoters] = useState<Voter[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [logs, setLogs] = useState<VerificationLog[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [, setLogs] = useState<VerificationLog[]>([]);
 
   useEffect(() => {
     fetchStats();
@@ -48,14 +53,14 @@ export function StaffDashboard() {
 
   useEffect(() => {
     const q = query(
-      collection(db, 'verification_logs'),
-      orderBy('createdAt', 'desc')
+      collection(db, "verification_logs"),
+      orderBy("createdAt", "desc")
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const newLogs = snapshot.docs.map(doc => ({
+      const newLogs = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       })) as VerificationLog[];
       setLogs(newLogs);
     });
@@ -65,13 +70,17 @@ export function StaffDashboard() {
 
   const fetchStats = async () => {
     try {
-      const verificationLogsRef = collection(db, 'verification_logs');
+      const verificationLogsRef = collection(db, "verification_logs");
       const querySnapshot = await getDocs(verificationLogsRef);
-      const verificationLogs = querySnapshot.docs.map(doc => doc.data());
+      const verificationLogs = querySnapshot.docs.map((doc) => doc.data());
 
       const total = verificationLogs.length;
-      const success = verificationLogs.filter((log) => (log as { status: string }).status === 'success').length;
-      const failed = verificationLogs.filter((log) => (log as { status: string }).status === 'failed').length;
+      const success = verificationLogs.filter(
+        (log) => (log as { status: string }).status === "success"
+      ).length;
+      const failed = verificationLogs.filter(
+        (log) => (log as { status: string }).status === "failed"
+      ).length;
 
       setStats({
         total,
@@ -80,32 +89,33 @@ export function StaffDashboard() {
         pending: total - (success + failed),
       });
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error("Error fetching stats:", error);
     }
   };
 
   const fetchVoters = async () => {
     try {
-      const votersRef = collection(db, 'voters');
-      const q = query(votersRef, orderBy('created_at', 'desc'));
+      const votersRef = collection(db, "voters");
+      const q = query(votersRef, orderBy("created_at", "desc"));
       const querySnapshot = await getDocs(q);
-      const data = querySnapshot.docs.map(doc => ({
+      const data = querySnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       })) as Voter[];
-      
+
       setVoters(data);
     } catch (error) {
-      console.error('Error fetching voters:', error);
+      console.error("Error fetching voters:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredVoters = voters.filter(voter =>
-    voter.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    voter.aadhaar_id.includes(searchQuery) ||
-    voter.electoral_roll_number.includes(searchQuery)
+  const filteredVoters = voters.filter(
+    (voter) =>
+      voter.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      voter.aadhaar_id.includes(searchQuery) ||
+      voter.electoral_roll_number.includes(searchQuery)
   );
 
   return (
@@ -171,23 +181,39 @@ export function StaffDashboard() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/10">
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white/70">Name</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white/70">Aadhaar ID</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white/70">Electoral Roll</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white/70">Region</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white/70">Registered</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white/70">
+                  Name
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white/70">
+                  Aadhaar ID
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white/70">
+                  Electoral Roll
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white/70">
+                  Region
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white/70">
+                  Registered
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-white/50">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-4 text-center text-white/50"
+                  >
                     Loading voters...
                   </td>
                 </tr>
               ) : filteredVoters.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-white/50">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-4 text-center text-white/50"
+                  >
                     No voters found
                   </td>
                 </tr>
@@ -195,9 +221,15 @@ export function StaffDashboard() {
                 filteredVoters.map((voter) => (
                   <tr key={voter.id} className="hover:bg-white/5 transition">
                     <td className="px-6 py-4 text-white">{voter.full_name}</td>
-                    <td className="px-6 py-4 text-white/70">{voter.aadhaar_id}</td>
-                    <td className="px-6 py-4 text-white/70">{voter.electoral_roll_number}</td>
-                    <td className="px-6 py-4 text-white/70">{voter.region_code}</td>
+                    <td className="px-6 py-4 text-white/70">
+                      {voter.aadhaar_id}
+                    </td>
+                    <td className="px-6 py-4 text-white/70">
+                      {voter.electoral_roll_number}
+                    </td>
+                    <td className="px-6 py-4 text-white/70">
+                      {voter.region_code}
+                    </td>
                     <td className="px-6 py-4 text-white/70">
                       {new Date(voter.created_at).toLocaleDateString()}
                     </td>
@@ -212,12 +244,12 @@ export function StaffDashboard() {
   );
 }
 
-function StatCard({ 
-  title, 
-  value, 
-  icon, 
-  className 
-}: { 
+function StatCard({
+  title,
+  value,
+  icon,
+  className,
+}: {
   title: string;
   value: number;
   icon: React.ReactNode;

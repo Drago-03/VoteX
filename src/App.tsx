@@ -1,61 +1,77 @@
-import React, { useState } from 'react';
-import { Shield, Users, UserCheck, AlertCircle, Camera, Fingerprint } from 'lucide-react';
-import { StaffDashboard } from './components/StaffDashboard';
-import { auth } from './lib/firebase';
-import { db } from './lib/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { collection, addDoc } from 'firebase/firestore';
+import React, { useState } from "react";
+import {
+  Shield,
+  Users,
+  UserCheck,
+  AlertCircle,
+  Camera,
+  Fingerprint,
+} from "lucide-react";
+import { StaffDashboard } from "./components/StaffDashboard";
+import { auth } from "./lib/firebase";
+import { db } from "./lib/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { collection, addDoc } from "firebase/firestore";
 
-type VerificationStatus = 'idle' | 'processing' | 'success' | 'failed';
+type VerificationStatus = "idle" | "processing" | "success" | "failed";
 
 function App() {
   const [isStaffPortal, setIsStaffPortal] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>('idle');
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [verificationStatus, setVerificationStatus] =
+    useState<VerificationStatus>("idle");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleVerification = async () => {
-    setVerificationStatus('processing');
+    setVerificationStatus("processing");
     try {
       // Simulated API calls to Vision AI and Aadhaar API
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       const success = Math.random() > 0.5; // Simulate success/failure
-      
+
       // Log the verification attempt using Firestore
-      await addDoc(collection(db, 'verification_logs'), {
-        verification_type: 'face',
-        status: success ? 'success' : 'failed',
-        error_message: success ? null : 'Facial recognition failed',
-        timestamp: new Date()
+      await addDoc(collection(db, "verification_logs"), {
+        verification_type: "face",
+        status: success ? "success" : "failed",
+        error_message: success ? null : "Facial recognition failed",
+        timestamp: new Date(),
       });
-      
-      setVerificationStatus(success ? 'success' : 'failed');
+
+      setVerificationStatus(success ? "success" : "failed");
       if (!success) {
-        setErrorMessage('Facial recognition failed. Please try again or seek staff assistance.');
+        setErrorMessage(
+          "Facial recognition failed. Please try again or seek staff assistance."
+        );
       }
     } catch (error) {
-      console.error('Verification error:', error);
-      setVerificationStatus('failed');
-      setErrorMessage('An error occurred during verification. Please try again.');
+      console.error("Verification error:", error);
+      setVerificationStatus("failed");
+      setErrorMessage(
+        "An error occurred during verification. Please try again."
+      );
     }
   };
 
   const handleStaffLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, username, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        username,
+        password
+      );
       if (userCredential.user) {
         setIsAuthenticated(true);
       }
     } catch (error) {
-      console.error('Login error:', error);
-      alert('Invalid credentials');
+      console.error("Login error:", error);
+      alert("Invalid credentials");
     }
   };
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 to-indigo-900">
@@ -74,7 +90,7 @@ function App() {
             className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center space-x-2 transition"
           >
             <Users className="h-5 w-5" />
-            <span>{isStaffPortal ? 'Voter Portal' : 'Staff Portal'}</span>
+            <span>{isStaffPortal ? "Voter Portal" : "Staff Portal"}</span>
           </button>
         </div>
       </header>
@@ -87,11 +103,15 @@ function App() {
           ) : (
             <div className="max-w-md mx-auto">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-white">
-                <h2 className="text-3xl font-bold mb-6 text-center">Staff Login</h2>
-                
+                <h2 className="text-3xl font-bold mb-6 text-center">
+                  Staff Login
+                </h2>
+
                 <form onSubmit={handleStaffLogin} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Username</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Username
+                    </label>
                     <input
                       type="text"
                       value={username}
@@ -100,9 +120,11 @@ function App() {
                       placeholder="Enter your username"
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium mb-1">Password</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Password
+                    </label>
                     <input
                       type="password"
                       value={password}
@@ -134,11 +156,11 @@ function App() {
   );
 }
 
-function VoterVerification({ 
-  status, 
-  errorMessage, 
-  onVerify 
-}: { 
+function VoterVerification({
+  status,
+  errorMessage,
+  onVerify,
+}: {
   status: VerificationStatus;
   errorMessage: string;
   onVerify: () => void;
@@ -146,12 +168,17 @@ function VoterVerification({
   return (
     <div className="max-w-2xl mx-auto">
       <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-white">
-        <h2 className="text-3xl font-bold mb-6 text-center">Voter Verification</h2>
-        
+        <h2 className="text-3xl font-bold mb-6 text-center">
+          Voter Verification
+        </h2>
+
         <div className="space-y-6">
-          {status === 'idle' && (
+          {status === "idle" && (
             <div className="text-center space-y-4">
-              <p className="text-lg">Please stand in front of the camera and place your thumb on the scanner</p>
+              <p className="text-lg">
+                Please stand in front of the camera and place your thumb on the
+                scanner
+              </p>
               <div className="flex justify-center space-x-4">
                 <div className="p-4 bg-white/5 rounded-lg flex flex-col items-center">
                   <Camera className="h-8 w-8 mb-2" />
@@ -171,25 +198,29 @@ function VoterVerification({
             </div>
           )}
 
-          {status === 'processing' && (
+          {status === "processing" && (
             <div className="text-center space-y-4">
               <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent mx-auto" />
               <p>Processing verification...</p>
             </div>
           )}
 
-          {status === 'success' && (
+          {status === "success" && (
             <div className="text-center space-y-4">
               <UserCheck className="h-16 w-16 text-green-400 mx-auto" />
-              <p className="text-xl font-semibold text-green-400">Verification Successful</p>
+              <p className="text-xl font-semibold text-green-400">
+                Verification Successful
+              </p>
               <p>You may proceed to the voting booth</p>
             </div>
           )}
 
-          {status === 'failed' && (
+          {status === "failed" && (
             <div className="text-center space-y-4">
               <AlertCircle className="h-16 w-16 text-red-400 mx-auto" />
-              <p className="text-xl font-semibold text-red-400">Verification Failed</p>
+              <p className="text-xl font-semibold text-red-400">
+                Verification Failed
+              </p>
               <p>{errorMessage}</p>
               <button
                 onClick={onVerify}
