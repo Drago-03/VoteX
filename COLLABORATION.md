@@ -3,6 +3,7 @@
 ## 🔧 Local Development Setup
 
 1. **Prerequisites Installation**
+
    ```bash
    # Install Node.js 18.x
    nvm install 18
@@ -13,16 +14,19 @@
    ```
 
 2. **Environment Configuration**
+
    - Copy `.env.example` to `.env`
    - Set up Supabase project
    - Update environment variables
 
 3. **Development Server**
+
    ```bash
    npm run dev
    ```
 
 4. **Type Checking**
+
    ```bash
    # Run TypeScript compiler
    npx tsc --noEmit
@@ -50,7 +54,7 @@ const handleUserVerification = async (userId: string): Promise<boolean> => {
     const result = await verifyUser(userId);
     return result.success;
   } catch (error) {
-    console.error('Verification failed:', error);
+    console.error("Verification failed:", error);
     return false;
   }
 };
@@ -111,6 +115,7 @@ const UserCard = (props) => {
 ## 🔄 Git Workflow
 
 1. **Branch Naming**
+
    ```
    feature/description
    bugfix/description
@@ -118,6 +123,7 @@ const UserCard = (props) => {
    ```
 
 2. **Commit Messages**
+
    ```
    feat: add voter verification
    fix: resolve authentication issue
@@ -140,17 +146,20 @@ const UserCard = (props) => {
 ## ✅ Pull Request Requirements
 
 1. **Title and Description**
+
    - Clear, concise title
    - Detailed description of changes
    - Link to related issues
 
 2. **Code Quality**
+
    - Passes all tests
    - Follows code style guidelines
    - No TypeScript errors
    - ESLint compliance
 
 3. **Documentation**
+
    - Updated README if needed
    - Code comments for complex logic
    - Updated API documentation
@@ -163,11 +172,13 @@ const UserCard = (props) => {
 ## 🐛 Issue Reporting
 
 1. **Bug Reports**
+
    ```markdown
    **Description**
    Clear description of the bug
 
    **Steps to Reproduce**
+
    1. Step one
    2. Step two
    3. Step three
@@ -179,12 +190,14 @@ const UserCard = (props) => {
    What actually happens
 
    **Environment**
+
    - Browser:
    - OS:
    - Version:
    ```
 
 2. **Feature Requests**
+
    ```markdown
    **Problem Statement**
    What problem does this solve?
@@ -202,6 +215,7 @@ const UserCard = (props) => {
 ## 📢 Communication Channels
 
 1. **Primary Channels**
+
    - GitHub Issues: Bug reports and feature requests
    - Pull Requests: Code review discussions
    - Project Board: Task tracking
@@ -215,11 +229,13 @@ const UserCard = (props) => {
 ## 📋 Testing Requirements
 
 1. **Unit Tests**
+
    - Required for all new features
    - Must maintain coverage standards
    - Use React Testing Library
 
 2. **Integration Tests**
+
    - Required for API integrations
    - Test error scenarios
    - Verify data flow
@@ -234,6 +250,7 @@ const UserCard = (props) => {
 This project is licensed under the MIT License.
 
 **Attribution Requirements:**
+
 - Maintain copyright notices
 - Include license in distributions
 - Credit third-party libraries
@@ -242,6 +259,7 @@ This project is licensed under the MIT License.
 ## 🔄 Version Control
 
 1. **Semantic Versioning**
+
    ```
    MAJOR.MINOR.PATCH
    ```
@@ -256,6 +274,7 @@ This project is licensed under the MIT License.
 ## 🚀 Deployment Process
 
 1. **Staging Deployment**
+
    - Automated from main branch
    - Run integration tests
    - Manual QA review

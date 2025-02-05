@@ -2,7 +2,7 @@
   description = "VoteX Development Environment";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -12,6 +12,8 @@
         pkgs = import nixpkgs { inherit system; };
       in
       {
+        packages.default = pkgs.hello;  # Adding default package
+        
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             # Development tools
@@ -23,6 +25,9 @@
             # Build tools
             gnumake
             gcc
+            
+            # Default package
+            hello
           ];
         };
       });

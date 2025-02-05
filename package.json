@@ -9,7 +9,7 @@
     "build:clean": "rm -rf dashboard/dist node_modules dashboard/node_modules",
     "build:install": "npm install && cd dashboard && npm install",
     "build:frontend": "cd dashboard && npm run build",
-    "build": "npm run build:clean && npm run build:install && npm run build:frontend",
+    "build": "tsc && vite build",
     "test": "jest"
   },
   "dependencies": {
