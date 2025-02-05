@@ -5,16 +5,12 @@
   "main": "server.js",
   "scripts": {
     "dev": "NODE_ENV=development nodemon server.js",
-    "build:dashboard": "cd dashboard && npm install --force && npm run build",
-    "prebuild": "npm install",
-    "build": "npm run build:dashboard",
     "start": "NODE_ENV=production node server.js",
-    "clean": "rm -rf dashboard/dist node_modules dashboard/node_modules",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "build:clean": "rm -rf dashboard/dist node_modules dashboard/node_modules",
+    "build:install": "npm install && cd dashboard && npm install",
+    "build:frontend": "cd dashboard && npm run build",
+    "build": "npm run build:clean && npm run build:install && npm run build:frontend",
+    "test": "jest"
   },
   "dependencies": {
     "express": "^4.17.1",

@@ -4,14 +4,20 @@ const path = require('path');
 const fs = require('fs');
 const app = express();
 
-// Middleware
+// Basic middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Debug middleware
+// Simplified logging
 app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
     next();
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
 });
 
 // API routes
@@ -19,58 +25,40 @@ app.get('/api/test', (req, res) => {
     res.json({ message: 'Backend server is running!' });
 });
 
-// Check if we're in development mode
-const isDevelopment = process.env.NODE_ENV === 'development';
-const dashboardPath = path.join(__dirname, 'dashboard');
-const distPath = path.join(dashboardPath, 'dist');
-
-// Check build status before serving files
-const checkBuildStatus = () => {
-    if (!fs.existsSync(distPath)) {
-        console.error('Error: dist folder not found.');
-        console.error('Please run the following commands:');
-        console.error('1. npm run clean');
-        console.error('2. npm install');
-        console.error('3. npm run build');
-        process.exit(1);
-    }
-};
-
-// Serve static files based on environment
-if (isDevelopment) {
-    console.log('Running in development mode - serving from Vite dev server');
-} else {
-    checkBuildStatus();
+// Static file serving
+const distPath = path.join(__dirname, 'dashboard', 'dist');
+if (fs.existsSync(distPath)) {
     app.use(express.static(distPath));
+    
+    // SPA fallback
+    app.get('*', (req, res) => {
+        if (req.url.startsWith('/api')) return next();
+        res.sendFile(path.join(distPath, 'index.html'));
+    });
+} else {
+    console.warn('Warning: dist folder not found - running API-only mode');
 }
 
-// Handle React routing
-app.get('*', (req, res, next) => {
-    if (req.url.startsWith('/api')) {
-        return next();
-    }
-
-    if (isDevelopment) {
-        res.redirect('http://localhost:5173' + req.url);
-    } else {
-        const indexPath = path.join(distPath, 'index.html');
-        if (!fs.existsSync(indexPath)) {
-            return res.status(500).send('Build files not found. Please run npm run build first.');
-        }
-        res.sendFile(indexPath);
-    }
-});
-
-// Error handling middleware
+// Error handler
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
 });
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
+const HOST = '0.0.0.0';
+
+const server = app.listen(PORT, HOST, () => {
     console.log(`Server running at http://localhost:${PORT}`);
-    console.log(`Mode: ${isDevelopment ? 'development' : 'production'}`);
+    console.log(`Also try http://${HOST}:${PORT}`);
+}).on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is busy. Try a different port:`);
+        console.error(`PORT=3001 npm run dev`);
+    } else {
+        console.error('Server error:', err);
+    }
+    process.exit(1);
 });
 
