@@ -34,27 +34,33 @@ VoteX is a cutting-edge voter verification system that leverages AI and biometri
 ## 🚦 Quick Start
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/your-org/votex.git
    cd votex
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Set up environment variables:
+
    ```bash
    cp .env.example .env
    ```
+
    Update the following variables in `.env`:
+
    ```
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
 
 4. Start the development server:
+
    ```bash
    npm run dev
    ```
@@ -74,7 +80,7 @@ graph TD
     D -->|Verifies| F[Aadhaar API]
     E -->|Results| G[Verification Service]
     F -->|Results| G
-    G -->|Logs| H[Supabase DB]
+    G -->|Logs| H[Google CLoud Based DB]
     I[Staff] -->|Manages| J[Admin Portal]
     J -->|Queries| H
 ```
@@ -82,6 +88,7 @@ graph TD
 ### Database Schema
 
 #### Voters Table
+
 - `id`: UUID (Primary Key)
 - `aadhaar_id`: Text (Unique)
 - `full_name`: Text
@@ -93,6 +100,7 @@ graph TD
 - `updated_at`: Timestamp
 
 #### Verification Logs Table
+
 - `id`: UUID (Primary Key)
 - `voter_id`: UUID (Foreign Key)
 - `verification_type`: Text ('face' | 'fingerprint')
@@ -114,11 +122,13 @@ graph TD
 ## 📦 Deployment
 
 1. Build the project:
+
    ```bash
    npm run build
    ```
 
 2. Deploy to your hosting platform:
+
    ```bash
    # Example for Netlify
    netlify deploy --prod
