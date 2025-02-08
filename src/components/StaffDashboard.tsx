@@ -7,6 +7,7 @@ import {
   Plus,
   Search,
   RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 import {
   collection,
@@ -14,9 +15,10 @@ import {
   orderBy,
   onSnapshot,
   getDocs,
+  limit,
 } from "firebase/firestore";
-import { db } from "../lib/firebase";
-import type { VerificationLog } from "../lib/firebase";
+import { db } from "../firebase";
+import type { VerificationLog } from "../types/firebase";
 
 type VerificationStats = {
   total: number;
@@ -120,6 +122,46 @@ export function StaffDashboard() {
 
   return (
     <div className="space-y-6">
+      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-white">
+        <h2 className="text-3xl font-bold mb-6">Staff Dashboard</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white/5 rounded-lg p-6">
+            <h3 className="text-xl font-semibold mb-4">Recent Verifications</h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <UserCheck className="h-5 w-5 text-green-400" />
+                  <span>Successful Verification</span>
+                </div>
+                <span className="text-sm text-white/60">2 minutes ago</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <AlertCircle className="h-5 w-5 text-red-400" />
+                  <span>Failed Verification</span>
+                </div>
+                <span className="text-sm text-white/60">5 minutes ago</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/5 rounded-lg p-6">
+            <h3 className="text-xl font-semibold mb-4">Statistics</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-3xl font-bold text-green-400">85%</div>
+                <div className="text-sm text-white/60">Success Rate</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-blue-400">150</div>
+                <div className="text-sm text-white/60">Total Verifications</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <StatCard

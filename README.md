@@ -148,3 +148,94 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🤝 Contributing
 
 Please read [COLLABORATION.md](COLLABORATION.md) for details on our code of conduct and the process for submitting pull requests.
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Copy `.env.example` to `.env` and fill in your Firebase configuration:
+
+```bash
+cp .env.example .env
+```
+
+4. Set up Firebase:
+   - Create a new Firebase project at [Firebase Console](https://console.firebase.google.com)
+   - Enable Authentication, Firestore, and Hosting
+   - Copy the Firebase configuration values to your `.env` file
+
+## Local Development
+
+1. Start the development server:
+
+```bash
+npm run dev
+```
+
+2. Start Firebase emulators (optional, for testing Firebase features locally):
+
+```bash
+npm run firebase:emulators
+```
+
+The app will be available at http://localhost:3000
+
+## Production Deployment
+
+1. Install Firebase CLI if you haven't:
+
+```bash
+npm install -g firebase-tools
+```
+
+2. Login to Firebase:
+
+```bash
+firebase login
+```
+
+3. Initialize Firebase (first time only):
+
+```bash
+firebase init
+```
+
+4. Deploy to Firebase:
+
+```bash
+npm run deploy
+```
+
+This will build the application and deploy it to Firebase Hosting.
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build locally
+- `npm test` - Run tests
+- `npm run firebase:emulators` - Start Firebase emulators
+- `npm run firebase:deploy` - Deploy to Firebase
+- `npm run deploy` - Build and deploy to Firebase
+
+## Environment Variables
+
+Create a `.env` file with the following variables:
+
+```env
+PORT=3000
+NODE_ENV=development
+
+# Firebase Configuration
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+VITE_FIREBASE_APP_ID=your-app-id
+```
