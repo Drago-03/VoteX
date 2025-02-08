@@ -1,3 +1,9 @@
+/**
+ * Authentication Service
+ * This file contains all the functions related to user authentication.
+ * It handles user registration, login, logout, and user data management.
+ */
+
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -7,12 +13,27 @@ import {
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
 
+/**
+ * User Data Type
+ * Defines the structure of additional user information stored in Firestore
+ */
 export type UserData = {
-  email: string;
-  firstName: string;
-  lastName: string;
+  email: string; // User's email address
+  firstName: string; // User's first name
+  lastName: string; // User's last name
 };
 
+/**
+ * Sign Up Function
+ * Creates a new user account and stores additional user information.
+ *
+ * @param email - User's email address
+ * @param password - User's chosen password
+ * @param firstName - User's first name
+ * @param lastName - User's last name
+ * @returns Promise containing the created user object
+ * @throws Error if email already exists or creation fails
+ */
 export async function signUp(
   email: string,
   password: string,
@@ -20,6 +41,7 @@ export async function signUp(
   lastName: string
 ): Promise<User> {
   try {
+    // Create authentication account
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
@@ -27,7 +49,7 @@ export async function signUp(
     );
     const user = userCredential.user;
 
-    // Store additional user data in Firestore
+    // Store additional user information in Firestore
     const userData: UserData = {
       email,
       firstName,
@@ -44,6 +66,15 @@ export async function signUp(
   }
 }
 
+/**
+ * Sign In Function
+ * Authenticates an existing user and manages their session.
+ *
+ * @param email - User's email address
+ * @param password - User's password
+ * @returns Promise containing the authenticated user object
+ * @throws Error if credentials are invalid or account doesn't exist
+ */
 export async function signIn(email: string, password: string): Promise<User> {
   try {
     const userCredential = await signInWithEmailAndPassword(
@@ -51,6 +82,7 @@ export async function signIn(email: string, password: string): Promise<User> {
       email,
       password
     );
+    // Store user ID in local storage for session management
     localStorage.setItem("loggedInUserId", userCredential.user.uid);
     return userCredential.user;
   } catch (error: any) {
@@ -61,6 +93,12 @@ export async function signIn(email: string, password: string): Promise<User> {
   }
 }
 
+/**
+ * Log Out Function
+ * Signs out the current user and clears their session.
+ *
+ * @throws Error if sign-out fails
+ */
 export async function logOut(): Promise<void> {
   try {
     await signOut(auth);
@@ -70,6 +108,12 @@ export async function logOut(): Promise<void> {
   }
 }
 
+/**
+ * Get Current User ID
+ * Retrieves the ID of the currently logged-in user from local storage.
+ *
+ * @returns The user's ID if logged in, null otherwise
+ */
 export function getCurrentUserId(): string | null {
   return localStorage.getItem("loggedInUserId");
 }

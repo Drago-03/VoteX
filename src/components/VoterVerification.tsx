@@ -1,32 +1,46 @@
+/**
+ * Voter Verification Component
+ * The main interface for voters to verify their identity using AI-powered face recognition
+ * and Aadhaar card verification. Features real-time feedback and voice interaction.
+ */
+
 import React, { useState, useEffect, useRef } from "react";
 import { Camera, Fingerprint, UserCheck, AlertCircle, Mic } from "lucide-react";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
+// Define possible states for the verification process
 type VerificationStatus = "idle" | "processing" | "success" | "failed";
 
 export function VoterVerification() {
+  // State Management
   const [status, setStatus] = useState<VerificationStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [voiceMessage, setVoiceMessage] = useState("");
   const [voterData, setVoterData] = useState({
-    aadhaarId: "",
-    name: "",
+    aadhaarId: "", // Voter's Aadhaar card number
+    name: "", // Voter's full name
   });
   const hasSpoken = useRef(false);
 
-  // AI Voice Response
+  /**
+   * Text-to-Speech Function
+   * Converts text messages to speech for accessibility and user feedback
+   */
   const speak = (text: string) => {
     if ("speechSynthesis" in window && !window.speechSynthesis.speaking) {
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1;
-      utterance.pitch = 1;
+      utterance.rate = 1; // Normal speaking rate
+      utterance.pitch = 1; // Normal pitch
       window.speechSynthesis.speak(utterance);
     }
   };
 
+  /**
+   * Initial Welcome Message
+   * Greets users with voice instructions when they first arrive
+   */
   useEffect(() => {
-    // Welcome message when component mounts - only once
     if (!hasSpoken.current) {
       speak(
         "Welcome to VoteX. Please enter your Aadhaar ID and name for verification."
@@ -34,7 +48,7 @@ export function VoterVerification() {
       hasSpoken.current = true;
     }
 
-    // Cleanup function to cancel any ongoing speech when component unmounts
+    // Cleanup any ongoing speech when component unmounts
     return () => {
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
@@ -42,7 +56,12 @@ export function VoterVerification() {
     };
   }, []);
 
+  /**
+   * Verification Handler
+   * Processes the voter verification attempt using AI and biometric checks
+   */
   const handleVerification = async () => {
+    // Validate required fields
     if (!voterData.aadhaarId || !voterData.name) {
       const message = "Please enter all required information";
       setErrorMessage(message);
@@ -54,12 +73,13 @@ export function VoterVerification() {
     speak("Processing your verification. Please wait.");
 
     try {
-      // Simulated API calls to Vision AI and Aadhaar API
+      // Simulate API calls to Vision AI and Aadhaar API
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      const success = Math.random() > 0.3; // 70% success rate
+      // Simulate 70% success rate for demo
+      const success = Math.random() > 0.3;
 
-      // Log the verification attempt
+      // Log verification attempt in database
       await addDoc(collection(db, "verification_logs"), {
         verification_type: "face",
         status: success ? "success" : "failed",
@@ -68,6 +88,7 @@ export function VoterVerification() {
         voter_data: voterData,
       });
 
+      // Update UI and provide voice feedback
       setStatus(success ? "success" : "failed");
       speak(
         success
@@ -90,6 +111,10 @@ export function VoterVerification() {
     }
   };
 
+  /**
+   * Input Change Handler
+   * Updates form data and clears any error messages
+   */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setVoterData((prev) => ({ ...prev, [name]: value }));
@@ -98,7 +123,9 @@ export function VoterVerification() {
 
   return (
     <div className="max-w-4xl mx-auto">
+      {/* Main Verification Card */}
       <div className="bg-white/10 backdrop-filter backdrop-blur-lg rounded-xl p-8 text-white shadow-xl border border-white/20">
+        {/* Header Section */}
         <div className="text-center mb-8">
           <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
             Voter Verification
@@ -109,10 +136,14 @@ export function VoterVerification() {
         </div>
 
         <div className="space-y-8">
+          {/* Initial Verification Form */}
           {status === "idle" && (
             <div className="space-y-8">
+              {/* Input Fields Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Form Fields */}
                 <div className="space-y-4">
+                  {/* Aadhaar ID Input */}
                   <div className="relative">
                     <label className="block text-sm font-medium mb-1">
                       Aadhaar ID
@@ -126,6 +157,7 @@ export function VoterVerification() {
                       placeholder="Enter your Aadhaar ID"
                     />
                   </div>
+                  {/* Full Name Input */}
                   <div className="relative">
                     <label className="block text-sm font-medium mb-1">
                       Full Name
@@ -141,12 +173,15 @@ export function VoterVerification() {
                   </div>
                 </div>
 
+                {/* Status Indicators */}
                 <div className="flex flex-col justify-center space-y-6">
                   <div className="grid grid-cols-2 gap-4">
+                    {/* Camera Status */}
                     <div className="p-6 bg-white/5 rounded-lg flex flex-col items-center hover:bg-white/10 transition-all">
                       <Camera className="h-10 w-10 mb-3 text-blue-400" />
                       <span className="text-sm font-medium">Camera Ready</span>
                     </div>
+                    {/* Fingerprint Scanner Status */}
                     <div className="p-6 bg-white/5 rounded-lg flex flex-col items-center hover:bg-white/10 transition-all">
                       <Fingerprint className="h-10 w-10 mb-3 text-purple-400" />
                       <span className="text-sm font-medium">Scanner Ready</span>
@@ -155,12 +190,14 @@ export function VoterVerification() {
                 </div>
               </div>
 
+              {/* Error Message Display */}
               {errorMessage && (
                 <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 animate-pulse">
                   {errorMessage}
                 </div>
               )}
 
+              {/* Verification Button */}
               <div className="text-center">
                 <button
                   onClick={handleVerification}
@@ -172,6 +209,7 @@ export function VoterVerification() {
             </div>
           )}
 
+          {/* Loading State */}
           {status === "processing" && (
             <div className="text-center space-y-4 py-8">
               <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto" />
@@ -179,6 +217,7 @@ export function VoterVerification() {
             </div>
           )}
 
+          {/* Success State */}
           {status === "success" && (
             <div className="text-center space-y-6 py-8">
               <UserCheck className="h-20 w-20 text-green-400 mx-auto animate-bounce" />
@@ -202,6 +241,7 @@ export function VoterVerification() {
             </div>
           )}
 
+          {/* Failure State */}
           {status === "failed" && (
             <div className="text-center space-y-6 py-8">
               <AlertCircle className="h-20 w-20 text-red-400 mx-auto animate-pulse" />

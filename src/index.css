@@ -1,14 +1,28 @@
+/**
+ * Global Styles
+ * Contains base styles and Tailwind CSS imports for the entire application.
+ * Sets up the foundational styling and typography.
+ */
+
+/* Import Tailwind's base styles */
 @import "tailwindcss/preflight";
 @import "tailwindcss/utilities";
 
+/* Import Tailwind's component and utility layers */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Root styles for consistent typography and rendering */
 :root {
+  /* Font stack prioritizing modern system fonts */
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  /* Base text settings */
   line-height: 1.5;
   font-weight: 400;
+
+  /* Font rendering optimizations */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

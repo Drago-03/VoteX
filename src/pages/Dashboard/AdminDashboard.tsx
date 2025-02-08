@@ -1,3 +1,9 @@
+/**
+ * AdminDashboard Component
+ * This is the main dashboard interface for staff members.
+ * It displays voter statistics, allows searching and managing voter records,
+ * and provides real-time updates from the database.
+ */
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User } from "firebase/auth";
@@ -22,26 +28,30 @@ import {
 import { db } from "../../firebase";
 import "./Dashboard.css";
 
+// Type definitions for data structures
 type VerificationStats = {
-  total: number;
-  success: number;
-  failed: number;
-  pending: number;
+  total: number; // Total number of verification attempts
+  success: number; // Successful verifications
+  failed: number; // Failed verifications
+  pending: number; // Pending verifications
 };
 
 type Voter = {
-  id: string;
-  full_name: string;
-  aadhaar_id: string;
-  electoral_roll_number: string;
-  region_code: string;
-  created_at: string;
+  id: string; // Unique identifier
+  full_name: string; // Voter's full name
+  aadhaar_id: string; // Aadhaar card number
+  electoral_roll_number: string; // Electoral roll reference
+  region_code: string; // Geographic region code
+  created_at: string; // Registration timestamp
 };
 
 export function AdminDashboard() {
+  // Navigation and authentication state
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Dashboard data state
   const [stats, setStats] = useState<VerificationStats>({
     total: 0,
     success: 0,
@@ -51,6 +61,10 @@ export function AdminDashboard() {
   const [voters, setVoters] = useState<Voter[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
+  /**
+   * Authentication Check
+   * Ensures only authenticated users can access the dashboard
+   */
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
@@ -63,17 +77,26 @@ export function AdminDashboard() {
     return () => unsubscribe();
   }, [navigate]);
 
+  /**
+   * Data Loading
+   * Fetches initial statistics and voter data when component mounts
+   */
   useEffect(() => {
     fetchStats();
     fetchVoters();
   }, []);
 
+  /**
+   * Fetch Verification Statistics
+   * Retrieves and calculates verification attempt statistics from the database
+   */
   const fetchStats = async () => {
     try {
       const verificationLogsRef = collection(db, "verification_logs");
       const querySnapshot = await getDocs(verificationLogsRef);
       const verificationLogs = querySnapshot.docs.map((doc) => doc.data());
 
+      // Calculate statistics
       const total = verificationLogs.length;
       const success = verificationLogs.filter(
         (log) => (log as { status: string }).status === "success"
@@ -93,6 +116,10 @@ export function AdminDashboard() {
     }
   };
 
+  /**
+   * Fetch Voter Records
+   * Retrieves the list of registered voters from the database
+   */
   const fetchVoters = async () => {
     try {
       const votersRef = collection(db, "voters");
@@ -109,6 +136,10 @@ export function AdminDashboard() {
     }
   };
 
+  /**
+   * Handle User Logout
+   * Logs out the current user and redirects to the staff login page
+   */
   const handleLogout = async () => {
     try {
       await logOut();
@@ -118,6 +149,7 @@ export function AdminDashboard() {
     }
   };
 
+  // Show loading spinner while initializing
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -126,10 +158,12 @@ export function AdminDashboard() {
     );
   }
 
+  // Redirect if not authenticated
   if (!user) {
     return null;
   }
 
+  // Filter voters based on search query
   const filteredVoters = voters.filter(
     (voter) =>
       voter.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -139,6 +173,7 @@ export function AdminDashboard() {
 
   return (
     <div className="dashboard-container">
+      {/* Dashboard Header */}
       <nav className="dashboard-nav">
         <div className="logo-container">
           <img
@@ -156,7 +191,9 @@ export function AdminDashboard() {
         </div>
       </nav>
 
+      {/* Main Dashboard Content */}
       <main className="dashboard-main">
+        {/* Statistics Overview */}
         <div className="dashboard-grid">
           <StatCard
             title="Total Voters"
@@ -184,6 +221,7 @@ export function AdminDashboard() {
           />
         </div>
 
+        {/* Search and Actions Bar */}
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mt-8">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
@@ -210,6 +248,7 @@ export function AdminDashboard() {
           </div>
         </div>
 
+        {/* Voters Table */}
         <div className="bg-white/5 rounded-lg overflow-hidden mt-8">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -259,16 +298,20 @@ export function AdminDashboard() {
   );
 }
 
+/**
+ * StatCard Component
+ * Displays a single statistic with an icon and title
+ */
 function StatCard({
   title,
   value,
   icon,
   className,
 }: {
-  title: string;
-  value: number;
-  icon: React.ReactNode;
-  className?: string;
+  title: string; // Title of the statistic
+  value: number; // Numerical value to display
+  icon: React.ReactNode; // Icon component to show
+  className?: string; // Additional styling classes
 }) {
   return (
     <div className={`p-6 rounded-lg ${className}`}>
