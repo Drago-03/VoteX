@@ -6,27 +6,50 @@
 
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // Enable React support with Fast Refresh
-  plugins: [react()],
+  plugins: [
+    react({
+      // Include refresh plugin for development
+      include: "**/*.{jsx,tsx}",
+    }),
+  ],
 
-  // Project root directory
-  root: "./",
+  resolve: {
+    alias: {
+      // Add path aliases for easier imports
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
 
   // Build output configuration
   build: {
-    outDir: "dist", // Output directory for production build
+    outDir: "dist",
+    sourcemap: true,
+    // Optimize dependencies
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom", "react-router-dom"],
+        },
+      },
+    },
   },
 
   // Development server settings
   server: {
-    port: 3000, // Default port for development server
+    port: 3000,
+    open: true, // Open browser on server start
+    host: true, // Listen on all local IPs
+    // Add CORS headers
+    cors: true,
   },
 
-  // Dependency optimization
+  // Optimize dependency pre-bundling
   optimizeDeps: {
-    exclude: ["lucide-react"], // Exclude specific packages from optimization
+    include: ["react", "react-dom", "react-router-dom"],
+    exclude: ["lucide-react"],
   },
 });

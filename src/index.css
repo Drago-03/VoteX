@@ -6,7 +6,7 @@
 
 /* Import Tailwind's base styles */
 @import "tailwindcss/preflight";
-@import "tailwindcss/utilities";
+@tailwind utilities;
 
 /* Root styles for consistent typography and rendering */
 :root {
@@ -22,4 +22,19 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure full height for root and app container */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Base background color */
+body {
+  background-color: #1a202c;
+  color: #ffffff;
 }
