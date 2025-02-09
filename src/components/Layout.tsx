@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Shield, Users, Mic, MicOff, LayoutDashboard } from "lucide-react";
 
-export function Layout() {
+const Layout = () => {
   // Hooks for navigation and location tracking
   const location = useLocation();
   const navigate = useNavigate();
@@ -139,4 +139,6 @@ export function Layout() {
       </footer>
     </div>
   );
-}
+};
+
+export default Layout;

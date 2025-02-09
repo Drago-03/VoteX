@@ -8,11 +8,6 @@
 @import "tailwindcss/preflight";
 @import "tailwindcss/utilities";
 
-/* Import Tailwind's component and utility layers */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Root styles for consistent typography and rendering */
 :root {
   /* Font stack prioritizing modern system fonts */

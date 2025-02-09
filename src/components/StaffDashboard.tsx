@@ -1,3 +1,9 @@
+/**
+ * StaffDashboard Component
+ * This component provides the main interface for staff members to manage voter records
+ * and view verification statistics.
+ */
+
 import React, { useEffect, useState } from "react";
 import {
   Users,
@@ -36,7 +42,9 @@ type Voter = {
   created_at: string;
 };
 
-export function StaffDashboard() {
+interface StaffDashboardProps {}
+
+export const StaffDashboard: React.FC<StaffDashboardProps> = () => {
   const [stats, setStats] = useState<VerificationStats>({
     total: 0,
     success: 0,
@@ -284,7 +292,7 @@ export function StaffDashboard() {
       </div>
     </div>
   );
-}
+};
 
 function StatCard({
   title,

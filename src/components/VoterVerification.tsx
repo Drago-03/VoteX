@@ -12,7 +12,9 @@ import { db } from "../firebase";
 // Define possible states for the verification process
 type VerificationStatus = "idle" | "processing" | "success" | "failed";
 
-export function VoterVerification() {
+interface VoterVerificationProps {}
+
+export const VoterVerification: React.FC<VoterVerificationProps> = () => {
   // State Management
   const [status, setStatus] = useState<VerificationStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -271,4 +273,4 @@ export function VoterVerification() {
       </div>
     </div>
   );
-}
+};
