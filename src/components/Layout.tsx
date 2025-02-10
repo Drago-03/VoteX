@@ -134,7 +134,11 @@ const Layout = () => {
       {/* Footer Section */}
       <footer className="bg-white/5 border-t border-white/10 py-6">
         <div className="container mx-auto px-4 text-center text-white/60">
-          <p>© 2025 @indiehub. All rights reserved.</p>
+          <p>
+            © 2025{" "}
+            <span className="tracking-widest font-semibold">INDIE HUB</span>.
+            All rights reserved.
+          </p>
         </div>
       </footer>
     </div>
