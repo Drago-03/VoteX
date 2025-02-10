@@ -6,9 +6,9 @@
 import React, { Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
-import VoterVerification from "./components/VoterVerification";
-import StaffLogin from "./components/StaffLogin";
-import StaffDashboard from "./components/StaffDashboard";
+import { VoterVerification } from "./components/VoterVerification";
+import { StaffLogin } from "./components/StaffLogin";
+import { StaffDashboard } from "./components/StaffDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Loading component for Suspense fallback

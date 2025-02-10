@@ -12,8 +12,10 @@ import path from "path";
 export default defineConfig({
   plugins: [
     react({
-      // Include refresh plugin for development
+      // Include JSX/TSX files
       include: "**/*.{jsx,tsx}",
+      // Enable Fast Refresh
+      fastRefresh: true,
     }),
   ],
 
@@ -40,11 +42,14 @@ export default defineConfig({
 
   // Development server settings
   server: {
-    port: 3000,
+    port: 5173, // Default Vite port
+    strictPort: true, // Ensure exact port is used
     open: true, // Open browser on server start
     host: true, // Listen on all local IPs
-    // Add CORS headers
-    cors: true,
+    cors: true, // Enable CORS
+    hmr: {
+      overlay: true, // Show errors as overlay
+    },
   },
 
   // Optimize dependency pre-bundling
