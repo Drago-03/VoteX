@@ -15,6 +15,10 @@ import VoterVerification from "./components/VoterVerification";
 import { StaffLogin } from "./components/StaffLogin";
 import { StaffDashboard } from "./components/StaffDashboard";
 import { useAuth } from "./hooks/useAuth";
+import ProtectedRoute from "./components/ProtectedRoute";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import { LanguageProvider } from "./contexts/LanguageContext";
 
 // Loading component for Suspense fallback
 const Loading: React.FC = () => (
@@ -26,44 +30,30 @@ const Loading: React.FC = () => (
   </div>
 );
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
-
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/staff" replace />;
-  }
-
-  return <>{children}</>;
-};
-
 const App: React.FC = () => {
   return (
-    <Router>
-      <Suspense fallback={<Loading />}>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<VoterVerification />} />
-            <Route path="staff" element={<StaffLogin />} />
-          </Route>
-          <Route
-            path="/dashboard/*"
-            element={
-              <ProtectedRoute>
-                <StaffDashboard />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </Suspense>
-    </Router>
+    <LanguageProvider>
+      <Router>
+        <Suspense fallback={<Loading />}>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<VoterVerification />} />
+              <Route path="about" element={<About />} />
+              <Route path="contact" element={<Contact />} />
+              <Route path="staff" element={<StaffLogin />} />
+            </Route>
+            <Route
+              path="/dashboard/*"
+              element={
+                <ProtectedRoute>
+                  <StaffDashboard />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Suspense>
+      </Router>
+    </LanguageProvider>
   );
 };
 

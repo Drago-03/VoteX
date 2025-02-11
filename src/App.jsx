@@ -6,10 +6,12 @@
 import React, { Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
-import { VoterVerification } from "./components/VoterVerification";
+import VoterVerification from "./components/VoterVerification";
 import { StaffLogin } from "./components/StaffLogin";
 import { StaffDashboard } from "./components/StaffDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 
 // Loading component for Suspense fallback
 const Loading = () => (
@@ -30,6 +32,10 @@ function App() {
           <Route path="/" element={<Layout />}>
             {/* Home page - Voter verification interface */}
             <Route index element={<VoterVerification />} />
+            {/* About ECI page */}
+            <Route path="about" element={<About />} />
+            {/* Contact page */}
+            <Route path="contact" element={<Contact />} />
             {/* Staff login page */}
             <Route path="staff" element={<StaffLogin />} />
           </Route>

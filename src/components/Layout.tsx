@@ -7,6 +7,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Shield, Users, Mic, MicOff, LayoutDashboard } from "lucide-react";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const Layout = () => {
   // Hooks for navigation and location tracking
@@ -21,6 +22,9 @@ const Layout = () => {
   const isStaffRoute =
     location.pathname.includes("/staff") ||
     location.pathname.includes("/dashboard");
+
+  // Add language context
+  const { currentLanguage, setLanguage, languages } = useLanguage();
 
   /**
    * Voice Recognition Setup
@@ -67,6 +71,27 @@ const Layout = () => {
     }
   };
 
+  // Update the screen reader handler
+  const handleScreenReader = () => {
+    const text = "Screen reader activated"; // This text will be translated based on language
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = currentLanguage.code;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Handle language change
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLanguage(e.target.value);
+    // Announce language change to screen readers
+    const utterance = new SpeechSynthesisUtterance(
+      `Language changed to ${
+        languages.find((lang) => lang.code === e.target.value)?.name
+      }`
+    );
+    utterance.lang = e.target.value;
+    window.speechSynthesis.speak(utterance);
+  };
+
   return (
     <>
       {/* Skip to main content link for keyboard users */}
@@ -86,15 +111,24 @@ const Layout = () => {
                 <span>भारत सरकार</span>
               </div>
               <div className="flex items-center space-x-4">
-                <button className="text-sm hover:underline">
+                <button
+                  className="text-sm hover:underline"
+                  onClick={handleScreenReader}
+                  aria-label="Activate screen reader"
+                >
                   Screen Reader
                 </button>
                 <select
                   className="bg-transparent border-none text-sm"
                   aria-label="Select language"
+                  value={currentLanguage.code}
+                  onChange={handleLanguageChange}
                 >
-                  <option value="en">English</option>
-                  <option value="hi">हिंदी</option>
+                  {languages.map((lang) => (
+                    <option key={lang.code} value={lang.code}>
+                      {lang.nativeName} ({lang.name})
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -103,19 +137,70 @@ const Layout = () => {
           {/* Main Header */}
           <div className="gov-container py-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <img
-                  src="/assets/emblem.png"
-                  alt="Government of India Emblem"
-                  className="gov-logo"
-                />
-                <div>
-                  <h1 className="gov-title">
-                    Election Commission of India
-                    <span className="block text-sm text-gray-600">
-                      भारत निर्वाचन आयोग
+              <div className="flex items-center space-x-6">
+                {/* Government Emblem and ECI Title */}
+                <div className="flex items-center space-x-4">
+                  <div className="flex flex-col items-center">
+                    {/* Ashoka Emblem */}
+                    <div className="w-16 h-16 relative">
+                      <svg viewBox="0 0 320 320" className="w-full h-full">
+                        <circle
+                          cx="160"
+                          cy="160"
+                          r="155"
+                          fill="#13227A"
+                          stroke="#F1B821"
+                          strokeWidth="5"
+                        />
+                        <circle
+                          cx="160"
+                          cy="160"
+                          r="140"
+                          fill="none"
+                          stroke="#F1B821"
+                          strokeWidth="2"
+                        />
+                        <path
+                          d="M160 40 L160 280 M40 160 L280 160"
+                          stroke="#F1B821"
+                          strokeWidth="2"
+                        />
+                        {/* Simplified Ashoka Chakra */}
+                        <circle
+                          cx="160"
+                          cy="160"
+                          r="40"
+                          fill="none"
+                          stroke="#F1B821"
+                          strokeWidth="3"
+                        />
+                        {/* 24 spokes */}
+                        {[...Array(24)].map((_, i) => (
+                          <line
+                            key={i}
+                            x1="160"
+                            y1="120"
+                            x2="160"
+                            y2="200"
+                            stroke="#F1B821"
+                            strokeWidth="2"
+                            transform={`rotate(${i * 15} 160 160)`}
+                          />
+                        ))}
+                      </svg>
+                    </div>
+                    <span className="text-[10px] font-semibold text-center mt-1">
+                      सत्यमेव जयते
                     </span>
-                  </h1>
+                  </div>
+                  <div>
+                    <h1 className="gov-title text-2xl font-bold">
+                      Election Commission of India
+                      <span className="block text-lg font-semibold text-gray-700">
+                        भारत निर्वाचन आयोग
+                      </span>
+                    </h1>
+                  </div>
                 </div>
               </div>
 

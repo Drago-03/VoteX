@@ -78,14 +78,12 @@ interface VerificationError {
 }
 
 // Memoized sub-components
-const LoadingSpinner = React.memo(() => (
+const VerificationLoadingState = React.memo(() => (
   <div className="text-center space-y-4 py-8">
     <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-600 border-t-transparent mx-auto" />
     <p className="text-xl text-gray-700">Processing verification...</p>
   </div>
 ));
-
-LoadingSpinner.displayName = "LoadingSpinner";
 
 const ErrorMessage = React.memo(({ message }: { message: string }) => (
   <div className="p-4 bg-red-100 bg-opacity-80 backdrop-blur-sm border border-red-200 rounded-lg text-red-700 animate-pulse">
@@ -964,9 +962,7 @@ const VoterVerification: React.FC<VoterVerificationProps> = ({
             )}
 
             {/* Processing State */}
-            {status === "processing" && (
-              <LoadingSpinner message="Verifying your voter ID..." />
-            )}
+            {status === "processing" && <VerificationLoadingState />}
 
             {/* Add Verification Steps Indicator */}
             {status === "processing" && <VerificationSteps />}
