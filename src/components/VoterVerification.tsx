@@ -557,12 +557,7 @@ export const VoterVerification: React.FC = () => {
       // Step 1: Verify Voter ID with enhanced error handling
       const voterRecord = await verifyVoterId(voterData.voterId);
       if (!voterRecord) {
-        throw {
-          type: "voter_not_found",
-          message: "Voter ID not found in the database",
-          details: "Please check your Voter ID or contact the election office",
-          timestamp: new Date(),
-        } as VerificationError;
+        throw new Error("Voter ID not found in the database");
       }
 
       // Check for suspicious activity
@@ -570,12 +565,7 @@ export const VoterVerification: React.FC = () => {
         voterData.voterId
       );
       if (suspiciousActivity) {
-        throw {
-          type: "suspicious_activity",
-          message: "Suspicious activity detected",
-          details: "Multiple verification attempts from different locations",
-          timestamp: new Date(),
-        } as VerificationError;
+        throw new Error("Suspicious activity detected");
       }
 
       setVerificationStep("id_verified");
@@ -597,14 +587,7 @@ export const VoterVerification: React.FC = () => {
         );
 
         if (!currentBiometricResult.isMatch) {
-          throw {
-            type: "biometric_mismatch",
-            message: "Biometric verification failed",
-            details: `Confidence: ${(
-              currentBiometricResult.confidence * 100
-            ).toFixed(2)}%. ${currentBiometricResult.error || ""}`,
-            timestamp: new Date(),
-          } as VerificationError;
+          throw new Error("Biometric verification failed");
         }
 
         setVerificationStep("biometric_verified");
@@ -620,12 +603,7 @@ export const VoterVerification: React.FC = () => {
       );
 
       if (!isRegisteredInRegion) {
-        throw {
-          type: "region_mismatch",
-          message: "Voter not found in regional voter list",
-          details: `Region: ${voterRecord.region}. Please verify your voting location.`,
-          timestamp: new Date(),
-        } as VerificationError;
+        throw new Error("Voter not found in regional voter list");
       }
 
       setVerificationStep("region_verified");
@@ -665,10 +643,8 @@ export const VoterVerification: React.FC = () => {
       setVerificationAttempts((prev) => prev + 1);
 
       // Enhanced error handling with specific messages
-      const verificationError = error as VerificationError;
-      const errorMessage = `${verificationError.message}. ${
-        verificationError.details || ""
-      }`;
+      const verificationError = error as Error;
+      const errorMessage = verificationError.message;
       setErrorMessage(errorMessage);
       speak(errorMessage);
 
@@ -678,7 +654,7 @@ export const VoterVerification: React.FC = () => {
         voter_id: voterData.voterId,
         fingerprint_verified: authState === "verified",
         status: "failed",
-        error_type: verificationError.type,
+        error_type: verificationError.name,
         error_message: errorMessage,
         timestamp: new Date(),
         steps_completed: {
@@ -807,13 +783,13 @@ export const VoterVerification: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-white/10 backdrop-filter backdrop-blur-lg rounded-xl p-8 text-white shadow-xl border border-white/20">
+      <div className="glass-effect rounded-xl p-8 shadow-xl">
         {/* Header Section */}
         <div className="text-center mb-8">
-          <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
+          <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
             Voter Verification
           </h2>
-          <p className="text-lg text-blue-200">
+          <p className="text-gray-600">
             Secure, Voice-Enabled Verification System
           </p>
         </div>
@@ -822,17 +798,17 @@ export const VoterVerification: React.FC = () => {
         <div className="flex justify-end mb-6">
           <button
             onClick={toggleInputMode}
-            className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition"
+            className="flex items-center space-x-2 px-4 py-2 rounded-lg glass-effect hover:bg-white hover:bg-opacity-30 transition"
           >
             {inputMode === "voice" ? (
               <>
-                <Keyboard className="h-5 w-5" />
-                <span>Switch to Text Input</span>
+                <Keyboard className="h-5 w-5 text-gray-700" />
+                <span className="text-gray-700">Switch to Text Input</span>
               </>
             ) : (
               <>
-                <Mic className="h-5 w-5" />
-                <span>Switch to Voice Input</span>
+                <Mic className="h-5 w-5 text-gray-700" />
+                <span className="text-gray-700">Switch to Voice Input</span>
               </>
             )}
           </button>
@@ -846,26 +822,26 @@ export const VoterVerification: React.FC = () => {
                 <div className="text-center space-y-6">
                   <button
                     onClick={toggleVoiceInput}
-                    className={`p-8 rounded-full ${
+                    className={`p-8 rounded-full transition-all duration-300 ${
                       isListening
-                        ? "bg-green-500/20 ring-2 ring-green-500/50 animate-pulse"
-                        : "bg-white/10 hover:bg-white/20"
-                    } transition-all duration-300`}
+                        ? "glass-effect ring-2 ring-green-400 animate-pulse"
+                        : "glass-effect hover:bg-white hover:bg-opacity-30"
+                    }`}
                   >
                     {isListening ? (
-                      <Mic className="h-12 w-12 text-green-400" />
+                      <Mic className="h-12 w-12 text-green-600" />
                     ) : (
-                      <MicOff className="h-12 w-12 text-white/70" />
+                      <MicOff className="h-12 w-12 text-gray-600" />
                     )}
                   </button>
-                  <p className="text-lg">
+                  <p className="text-lg text-gray-700">
                     {isListening
                       ? "Listening... Speak clearly"
                       : "Click the microphone to start speaking"}
                   </p>
                   {voiceMessage && (
-                    <div className="p-4 bg-white/5 rounded-lg">
-                      <p className="text-sm opacity-80">{voiceMessage}</p>
+                    <div className="p-4 bg-red-100 bg-opacity-80 backdrop-blur-sm border border-red-200 rounded-lg text-red-700 animate-pulse">
+                      {voiceMessage}
                     </div>
                   )}
                 </div>
@@ -876,23 +852,23 @@ export const VoterVerification: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div className="relative">
-                      <label className="block text-sm font-medium mb-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         Voter ID
                       </label>
                       <input
                         type="text"
                         value={voterData.voterId}
                         onChange={handleVoterIdChange}
-                        className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        className="w-full px-4 py-3 rounded-lg glass-effect text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         placeholder="Format: ABC1234567"
                         maxLength={10}
                       />
-                      <p className="mt-1 text-xs text-blue-200">
+                      <p className="mt-1 text-xs text-gray-600">
                         Example: ABC1234567 (3 letters followed by 7 digits)
                       </p>
                     </div>
                     <div className="relative">
-                      <label className="block text-sm font-medium mb-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         Full Name
                       </label>
                       <input
@@ -904,7 +880,7 @@ export const VoterVerification: React.FC = () => {
                             name: e.target.value,
                           }))
                         }
-                        className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        className="w-full px-4 py-3 rounded-lg glass-effect text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         placeholder="Enter your full name"
                       />
                     </div>
@@ -913,27 +889,27 @@ export const VoterVerification: React.FC = () => {
                   {/* Status Indicators */}
                   <div className="flex flex-col justify-center space-y-6">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="p-6 bg-white/5 rounded-lg flex flex-col items-center">
-                        <Camera className="h-10 w-10 mb-3 text-blue-400" />
-                        <span className="text-sm font-medium">
+                      <div className="p-6 glass-effect rounded-lg flex flex-col items-center">
+                        <Camera className="h-10 w-10 mb-3 text-indigo-600" />
+                        <span className="text-sm font-medium text-gray-700">
                           Camera Ready
                         </span>
                       </div>
                       <div
-                        className={`p-6 bg-white/5 rounded-lg flex flex-col items-center ${
+                        className={`p-6 glass-effect rounded-lg flex flex-col items-center ${
                           authState === "verified"
-                            ? "ring-2 ring-green-500/50"
+                            ? "ring-2 ring-green-400"
                             : ""
                         }`}
                       >
                         <Fingerprint
                           className={`h-10 w-10 mb-3 ${
                             authState === "verified"
-                              ? "text-green-400"
-                              : "text-purple-400"
+                              ? "text-green-600"
+                              : "text-purple-600"
                           }`}
                         />
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-medium text-gray-700">
                           {authState === "verified"
                             ? "Fingerprint Verified"
                             : isBiometricSupported
@@ -949,7 +925,7 @@ export const VoterVerification: React.FC = () => {
 
               {/* Error Message */}
               {errorMessage && (
-                <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 animate-pulse">
+                <div className="p-4 bg-red-100 bg-opacity-80 backdrop-blur-sm border border-red-200 rounded-lg text-red-700 animate-pulse">
                   {errorMessage}
                 </div>
               )}
@@ -958,7 +934,7 @@ export const VoterVerification: React.FC = () => {
               <div className="text-center">
                 <button
                   onClick={handleVerification}
-                  className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-lg font-semibold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
+                  className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
                 >
                   Verify Identity
                 </button>
@@ -969,8 +945,10 @@ export const VoterVerification: React.FC = () => {
           {/* Processing State */}
           {status === "processing" && (
             <div className="text-center space-y-4 py-8">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto" />
-              <p className="text-xl">Processing verification...</p>
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-600 border-t-transparent mx-auto" />
+              <p className="text-xl text-gray-700">
+                Processing verification...
+              </p>
             </div>
           )}
 
@@ -980,12 +958,12 @@ export const VoterVerification: React.FC = () => {
           {/* Success State */}
           {status === "success" && (
             <div className="text-center space-y-6 py-8">
-              <UserCheck className="h-20 w-20 text-green-400 mx-auto animate-bounce" />
+              <UserCheck className="h-20 w-20 text-green-600 mx-auto animate-bounce" />
               <div>
-                <p className="text-2xl font-semibold text-green-400 mb-2">
+                <p className="text-2xl font-semibold text-green-700 mb-2">
                   Verification Successful
                 </p>
-                <p className="text-lg text-green-200">
+                <p className="text-lg text-green-600">
                   You may proceed to the voting booth
                 </p>
               </div>
@@ -995,7 +973,7 @@ export const VoterVerification: React.FC = () => {
                   setVoterData({ voterId: "", name: "" });
                   setVoiceMessage("");
                 }}
-                className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 rounded-lg transition transform hover:scale-105 hover:shadow-lg hover:shadow-green-500/20"
+                className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg transition transform hover:scale-105 hover:shadow-lg hover:shadow-green-500/20"
               >
                 Verify Another Voter
               </button>
@@ -1005,23 +983,23 @@ export const VoterVerification: React.FC = () => {
           {/* Failure State */}
           {status === "failed" && (
             <div className="text-center space-y-6 py-8">
-              <AlertCircle className="h-20 w-20 text-red-400 mx-auto animate-pulse" />
+              <AlertCircle className="h-20 w-20 text-red-600 mx-auto animate-pulse" />
               <div>
-                <p className="text-2xl font-semibold text-red-400 mb-2">
+                <p className="text-2xl font-semibold text-red-700 mb-2">
                   Verification Failed
                 </p>
-                <p className="text-lg text-red-200">{errorMessage}</p>
+                <p className="text-lg text-red-600">{errorMessage}</p>
               </div>
               <div className="flex justify-center space-x-4">
                 <button
                   onClick={() => setStatus("idle")}
-                  className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-lg transition transform hover:scale-105"
+                  className="px-6 py-3 glass-effect hover:bg-white hover:bg-opacity-30 text-gray-700 rounded-lg transition transform hover:scale-105"
                 >
                   Try Again
                 </button>
                 <Link
                   to="/staff"
-                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 rounded-lg transition transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
+                  className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg transition transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
                 >
                   Contact Staff
                 </Link>
