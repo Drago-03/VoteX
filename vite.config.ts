@@ -15,7 +15,7 @@ export default defineConfig({
       // Include JSX/TSX files
       include: "**/*.{jsx,tsx}",
       // Enable Fast Refresh
-      fastRefresh: true,
+      refresh: true,
     }),
   ],
 
