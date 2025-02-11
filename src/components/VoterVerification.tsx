@@ -4,7 +4,13 @@
  * and AI-powered face recognition with Aadhaar card verification.
  */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import {
   Camera,
   Fingerprint,
@@ -25,7 +31,10 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import ErrorBoundary from "./ErrorBoundary";
+import LoadingSpinner from "./LoadingSpinner";
+import { isConnected } from "../firebase";
 
 type VerificationStatus =
   | "idle"
@@ -68,8 +77,31 @@ interface VerificationError {
   timestamp: Date;
 }
 
-export const VoterVerification: React.FC = () => {
-  // State Management
+// Memoized sub-components
+const LoadingSpinner = React.memo(() => (
+  <div className="text-center space-y-4 py-8">
+    <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-600 border-t-transparent mx-auto" />
+    <p className="text-xl text-gray-700">Processing verification...</p>
+  </div>
+));
+
+LoadingSpinner.displayName = "LoadingSpinner";
+
+const ErrorMessage = React.memo(({ message }: { message: string }) => (
+  <div className="p-4 bg-red-100 bg-opacity-80 backdrop-blur-sm border border-red-200 rounded-lg text-red-700 animate-pulse">
+    {message}
+  </div>
+));
+
+ErrorMessage.displayName = "ErrorMessage";
+
+interface VoterVerificationProps {
+  onVerificationComplete?: (success: boolean) => void;
+}
+
+const VoterVerification: React.FC<VoterVerificationProps> = ({
+  onVerificationComplete,
+}) => {
   const [status, setStatus] = useState<VerificationStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [voiceMessage, setVoiceMessage] = useState("");
@@ -92,6 +124,8 @@ export const VoterVerification: React.FC = () => {
   const [verificationAttempts, setVerificationAttempts] = useState<number>(0);
   const MAX_VERIFICATION_ATTEMPTS = 3;
   const VERIFICATION_TIMEOUT = 300000; // 5 minutes in milliseconds
+
+  const navigate = useNavigate();
 
   /**
    * Validate Voter ID format (ABC1234567)
@@ -199,21 +233,19 @@ export const VoterVerification: React.FC = () => {
     }
   }, []);
 
-  /**
-   * Handle Voter ID input change with validation
-   */
-  const handleVoterIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.toUpperCase();
-    if (value.length <= 10) {
-      setVoterData((prev) => ({ ...prev, voterId: value }));
-      setErrorMessage("");
-    }
-  };
+  // Memoized handlers
+  const handleVoterIdChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value.toUpperCase();
+      if (value.length <= 10) {
+        setVoterData((prev) => ({ ...prev, voterId: value }));
+        setErrorMessage("");
+      }
+    },
+    []
+  );
 
-  /**
-   * Toggle Voice Input
-   */
-  const toggleVoiceInput = () => {
+  const toggleVoiceInput = useCallback(() => {
     if (isListening) {
       recognitionRef.current?.stop();
     } else {
@@ -223,7 +255,7 @@ export const VoterVerification: React.FC = () => {
       );
     }
     setIsListening(!isListening);
-  };
+  }, [isListening]);
 
   /**
    * Toggle Input Mode
@@ -635,6 +667,10 @@ export const VoterVerification: React.FC = () => {
 
       // Reset verification attempts on success
       setVerificationAttempts(0);
+
+      // Verification successful
+      onVerificationComplete?.(true);
+      navigate("/voting-booth", { state: { voterId: voterData.voterId } });
     } catch (error) {
       console.error("Verification error:", error);
       setStatus("failed");
@@ -664,6 +700,9 @@ export const VoterVerification: React.FC = () => {
         },
         attempts: verificationAttempts,
       });
+
+      // Verification failed
+      onVerificationComplete?.(false);
     }
   };
 
@@ -781,233 +820,213 @@ export const VoterVerification: React.FC = () => {
     </button>
   );
 
+  // Memoized computations
+  const isVerificationDisabled = useMemo(() => {
+    return (
+      !voterData.voterId ||
+      !voterData.name ||
+      verificationAttempts >= MAX_VERIFICATION_ATTEMPTS
+    );
+  }, [voterData.voterId, voterData.name, verificationAttempts]);
+
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="glass-effect rounded-xl p-8 shadow-xl">
-        {/* Header Section */}
-        <div className="text-center mb-8">
-          <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Voter Verification
           </h2>
-          <p className="text-gray-600">
-            Secure, Voice-Enabled Verification System
-          </p>
         </div>
 
-        {/* Input Mode Toggle */}
-        <div className="flex justify-end mb-6">
-          <button
-            onClick={toggleInputMode}
-            className="flex items-center space-x-2 px-4 py-2 rounded-lg glass-effect hover:bg-white hover:bg-opacity-30 transition"
-          >
-            {inputMode === "voice" ? (
-              <>
-                <Keyboard className="h-5 w-5 text-gray-700" />
-                <span className="text-gray-700">Switch to Text Input</span>
-              </>
-            ) : (
-              <>
-                <Mic className="h-5 w-5 text-gray-700" />
-                <span className="text-gray-700">Switch to Voice Input</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        <div className="space-y-8">
-          {status === "idle" && (
-            <div className="space-y-8">
-              {/* Voice Input Section */}
-              {inputMode === "voice" && (
-                <div className="text-center space-y-6">
-                  <button
-                    onClick={toggleVoiceInput}
-                    className={`p-8 rounded-full transition-all duration-300 ${
-                      isListening
-                        ? "glass-effect ring-2 ring-green-400 animate-pulse"
-                        : "glass-effect hover:bg-white hover:bg-opacity-30"
-                    }`}
-                  >
-                    {isListening ? (
-                      <Mic className="h-12 w-12 text-green-600" />
-                    ) : (
-                      <MicOff className="h-12 w-12 text-gray-600" />
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            {status === "idle" && (
+              <div className="space-y-8">
+                {/* Voice Input Section */}
+                {inputMode === "voice" && (
+                  <div className="text-center space-y-6">
+                    <button
+                      onClick={toggleVoiceInput}
+                      className={`p-8 rounded-full transition-all duration-300 ${
+                        isListening
+                          ? "glass-effect ring-2 ring-green-400 animate-pulse"
+                          : "glass-effect hover:bg-white hover:bg-opacity-30"
+                      }`}
+                    >
+                      {isListening ? (
+                        <Mic className="h-12 w-12 text-green-600" />
+                      ) : (
+                        <MicOff className="h-12 w-12 text-gray-600" />
+                      )}
+                    </button>
+                    <p className="text-lg text-gray-700">
+                      {isListening
+                        ? "Listening... Speak clearly"
+                        : "Click the microphone to start speaking"}
+                    </p>
+                    {voiceMessage && (
+                      <div className="p-4 bg-red-100 bg-opacity-80 backdrop-blur-sm border border-red-200 rounded-lg text-red-700 animate-pulse">
+                        {voiceMessage}
+                      </div>
                     )}
-                  </button>
-                  <p className="text-lg text-gray-700">
-                    {isListening
-                      ? "Listening... Speak clearly"
-                      : "Click the microphone to start speaking"}
-                  </p>
-                  {voiceMessage && (
-                    <div className="p-4 bg-red-100 bg-opacity-80 backdrop-blur-sm border border-red-200 rounded-lg text-red-700 animate-pulse">
-                      {voiceMessage}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Text Input Section */}
-              {inputMode === "text" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="relative">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Voter ID
-                      </label>
-                      <input
-                        type="text"
-                        value={voterData.voterId}
-                        onChange={handleVoterIdChange}
-                        className="w-full px-4 py-3 rounded-lg glass-effect text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="Format: ABC1234567"
-                        maxLength={10}
-                      />
-                      <p className="mt-1 text-xs text-gray-600">
-                        Example: ABC1234567 (3 letters followed by 7 digits)
-                      </p>
-                    </div>
-                    <div className="relative">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Full Name
-                      </label>
-                      <input
-                        type="text"
-                        value={voterData.name}
-                        onChange={(e) =>
-                          setVoterData((prev) => ({
-                            ...prev,
-                            name: e.target.value,
-                          }))
-                        }
-                        className="w-full px-4 py-3 rounded-lg glass-effect text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="Enter your full name"
-                      />
-                    </div>
                   </div>
+                )}
 
-                  {/* Status Indicators */}
-                  <div className="flex flex-col justify-center space-y-6">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="p-6 glass-effect rounded-lg flex flex-col items-center">
-                        <Camera className="h-10 w-10 mb-3 text-indigo-600" />
-                        <span className="text-sm font-medium text-gray-700">
-                          Camera Ready
-                        </span>
-                      </div>
-                      <div
-                        className={`p-6 glass-effect rounded-lg flex flex-col items-center ${
-                          authState === "verified"
-                            ? "ring-2 ring-green-400"
-                            : ""
-                        }`}
-                      >
-                        <Fingerprint
-                          className={`h-10 w-10 mb-3 ${
-                            authState === "verified"
-                              ? "text-green-600"
-                              : "text-purple-600"
-                          }`}
+                {/* Text Input Section */}
+                {inputMode === "text" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="relative">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Voter ID
+                        </label>
+                        <input
+                          type="text"
+                          value={voterData.voterId}
+                          onChange={handleVoterIdChange}
+                          className="w-full px-4 py-3 rounded-lg glass-effect text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          placeholder="Format: ABC1234567"
+                          maxLength={10}
                         />
-                        <span className="text-sm font-medium text-gray-700">
-                          {authState === "verified"
-                            ? "Fingerprint Verified"
-                            : isBiometricSupported
-                            ? "Touch ID Ready"
-                            : "Touch ID Not Available"}
-                        </span>
+                        <p className="mt-1 text-xs text-gray-600">
+                          Example: ABC1234567 (3 letters followed by 7 digits)
+                        </p>
+                      </div>
+                      <div className="relative">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Full Name
+                        </label>
+                        <input
+                          type="text"
+                          value={voterData.name}
+                          onChange={(e) =>
+                            setVoterData((prev) => ({
+                              ...prev,
+                              name: e.target.value,
+                            }))
+                          }
+                          className="w-full px-4 py-3 rounded-lg glass-effect text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          placeholder="Enter your full name"
+                        />
                       </div>
                     </div>
-                    {isBiometricSupported && <FingerprintButton />}
+
+                    {/* Status Indicators */}
+                    <div className="flex flex-col justify-center space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-6 glass-effect rounded-lg flex flex-col items-center">
+                          <Camera className="h-10 w-10 mb-3 text-indigo-600" />
+                          <span className="text-sm font-medium text-gray-700">
+                            Camera Ready
+                          </span>
+                        </div>
+                        <div
+                          className={`p-6 glass-effect rounded-lg flex flex-col items-center ${
+                            authState === "verified"
+                              ? "ring-2 ring-green-400"
+                              : ""
+                          }`}
+                        >
+                          <Fingerprint
+                            className={`h-10 w-10 mb-3 ${
+                              authState === "verified"
+                                ? "text-green-600"
+                                : "text-purple-600"
+                            }`}
+                          />
+                          <span className="text-sm font-medium text-gray-700">
+                            {authState === "verified"
+                              ? "Fingerprint Verified"
+                              : isBiometricSupported
+                              ? "Touch ID Ready"
+                              : "Touch ID Not Available"}
+                          </span>
+                        </div>
+                      </div>
+                      {isBiometricSupported && <FingerprintButton />}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Error Message */}
-              {errorMessage && (
-                <div className="p-4 bg-red-100 bg-opacity-80 backdrop-blur-sm border border-red-200 rounded-lg text-red-700 animate-pulse">
-                  {errorMessage}
-                </div>
-              )}
+                {/* Error Message */}
+                {errorMessage && <ErrorMessage message={errorMessage} />}
 
-              {/* Verification Button */}
-              <div className="text-center">
+                {/* Verification Button */}
+                <div className="text-center">
+                  <button
+                    onClick={handleVerification}
+                    className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
+                  >
+                    Verify Identity
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Processing State */}
+            {status === "processing" && (
+              <LoadingSpinner message="Verifying your voter ID..." />
+            )}
+
+            {/* Add Verification Steps Indicator */}
+            {status === "processing" && <VerificationSteps />}
+
+            {/* Success State */}
+            {status === "success" && (
+              <div className="text-center space-y-6 py-8">
+                <UserCheck className="h-20 w-20 text-green-600 mx-auto animate-bounce" />
+                <div>
+                  <p className="text-2xl font-semibold text-green-700 mb-2">
+                    Verification Successful
+                  </p>
+                  <p className="text-lg text-green-600">
+                    You may proceed to the voting booth
+                  </p>
+                </div>
                 <button
-                  onClick={handleVerification}
-                  className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
+                  onClick={() => {
+                    setStatus("idle");
+                    setVoterData({ voterId: "", name: "" });
+                    setVoiceMessage("");
+                  }}
+                  className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg transition transform hover:scale-105 hover:shadow-lg hover:shadow-green-500/20"
                 >
-                  Verify Identity
+                  Verify Another Voter
                 </button>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Processing State */}
-          {status === "processing" && (
-            <div className="text-center space-y-4 py-8">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-600 border-t-transparent mx-auto" />
-              <p className="text-xl text-gray-700">
-                Processing verification...
-              </p>
-            </div>
-          )}
-
-          {/* Add Verification Steps Indicator */}
-          {status === "processing" && <VerificationSteps />}
-
-          {/* Success State */}
-          {status === "success" && (
-            <div className="text-center space-y-6 py-8">
-              <UserCheck className="h-20 w-20 text-green-600 mx-auto animate-bounce" />
-              <div>
-                <p className="text-2xl font-semibold text-green-700 mb-2">
-                  Verification Successful
-                </p>
-                <p className="text-lg text-green-600">
-                  You may proceed to the voting booth
-                </p>
+            {/* Failure State */}
+            {status === "failed" && (
+              <div className="text-center space-y-6 py-8">
+                <AlertCircle className="h-20 w-20 text-red-600 mx-auto animate-pulse" />
+                <div>
+                  <p className="text-2xl font-semibold text-red-700 mb-2">
+                    Verification Failed
+                  </p>
+                  <p className="text-lg text-red-600">{errorMessage}</p>
+                </div>
+                <div className="flex justify-center space-x-4">
+                  <button
+                    onClick={() => setStatus("idle")}
+                    className="px-6 py-3 glass-effect hover:bg-white hover:bg-opacity-30 text-gray-700 rounded-lg transition transform hover:scale-105"
+                  >
+                    Try Again
+                  </button>
+                  <Link
+                    to="/staff"
+                    className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg transition transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
+                  >
+                    Contact Staff
+                  </Link>
+                </div>
               </div>
-              <button
-                onClick={() => {
-                  setStatus("idle");
-                  setVoterData({ voterId: "", name: "" });
-                  setVoiceMessage("");
-                }}
-                className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg transition transform hover:scale-105 hover:shadow-lg hover:shadow-green-500/20"
-              >
-                Verify Another Voter
-              </button>
-            </div>
-          )}
-
-          {/* Failure State */}
-          {status === "failed" && (
-            <div className="text-center space-y-6 py-8">
-              <AlertCircle className="h-20 w-20 text-red-600 mx-auto animate-pulse" />
-              <div>
-                <p className="text-2xl font-semibold text-red-700 mb-2">
-                  Verification Failed
-                </p>
-                <p className="text-lg text-red-600">{errorMessage}</p>
-              </div>
-              <div className="flex justify-center space-x-4">
-                <button
-                  onClick={() => setStatus("idle")}
-                  className="px-6 py-3 glass-effect hover:bg-white hover:bg-opacity-30 text-gray-700 rounded-lg transition transform hover:scale-105"
-                >
-                  Try Again
-                </button>
-                <Link
-                  to="/staff"
-                  className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg transition transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
-                >
-                  Contact Staff
-                </Link>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 };
+
+export default React.memo(VoterVerification);

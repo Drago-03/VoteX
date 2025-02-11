@@ -75,69 +75,70 @@ const Layout = () => {
       </a>
 
       <div className="min-h-screen flex flex-col">
-        {/* Header Section */}
-        <header
-          className="sticky top-0 z-50 backdrop-blur-xl bg-black/10 border-b border-white/10"
-          role="banner"
-        >
-          <div className="center-container">
-            <nav
-              className="flex items-center justify-between py-4"
-              role="navigation"
-              aria-label="Main navigation"
-            >
-              {/* Logo and Title */}
-              <Link
-                to="/"
-                className="flex items-center space-x-3 group transition-transform duration-300 hover:scale-105 focus-ring"
-                aria-label="VoteX Home"
-              >
-                <Shield
-                  className="h-12 w-12 text-blue-400 group-hover:text-blue-300 transition-colors"
-                  aria-hidden="true"
+        {/* Government Header */}
+        <header className="gov-header">
+          {/* Top Bar */}
+          <div className="gov-header-top">
+            <div className="gov-container flex justify-between items-center">
+              <div className="flex items-center space-x-4">
+                <span>Government of India</span>
+                <span>|</span>
+                <span>भारत सरकार</span>
+              </div>
+              <div className="flex items-center space-x-4">
+                <button className="text-sm hover:underline">
+                  Screen Reader
+                </button>
+                <select
+                  className="bg-transparent border-none text-sm"
+                  aria-label="Select language"
+                >
+                  <option value="en">English</option>
+                  <option value="hi">हिंदी</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Header */}
+          <div className="gov-container py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <img
+                  src="/assets/emblem.png"
+                  alt="Government of India Emblem"
+                  className="gov-logo"
                 />
                 <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
-                    VoteX
+                  <h1 className="gov-title">
+                    Election Commission of India
+                    <span className="block text-sm text-gray-600">
+                      भारत निर्वाचन आयोग
+                    </span>
                   </h1>
-                  <p className="text-sm text-blue-200/80">
-                    AI-Powered Voting System
-                  </p>
                 </div>
-              </Link>
+              </div>
 
-              {/* Navigation Controls */}
-              <div className="flex items-center space-x-6">
-                {/* Voice Control Toggle */}
+              {/* Voice Control and Navigation */}
+              <div className="flex items-center space-x-4">
                 <button
                   onClick={() => setIsListening(!isListening)}
-                  className={`p-3 rounded-full transition-all duration-300 transform hover:scale-110 focus-ring ${
-                    isListening
-                      ? "bg-green-500/20 hover:bg-green-500/30 ring-2 ring-green-500/50"
-                      : "bg-white/5 hover:bg-white/10"
-                  }`}
+                  className="p-3 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                   aria-label={
                     isListening ? "Stop voice commands" : "Start voice commands"
                   }
-                  aria-pressed={isListening ? "true" : "false"}
+                  aria-pressed={isListening}
                 >
                   {isListening ? (
-                    <Mic
-                      className="h-6 w-6 text-green-400"
-                      aria-hidden="true"
-                    />
+                    <Mic className="h-5 w-5 text-green-600" />
                   ) : (
-                    <MicOff
-                      className="h-6 w-6 text-white/70"
-                      aria-hidden="true"
-                    />
+                    <MicOff className="h-5 w-5 text-gray-600" />
                   )}
                 </button>
 
-                {/* Portal Switch Button */}
                 <Link
                   to={isStaffRoute ? "/" : "/staff"}
-                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600/80 to-purple-600/80 hover:from-blue-500 hover:to-purple-500 text-white flex items-center space-x-3 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20 focus-ring"
+                  className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                   aria-label={
                     isStaffRoute
                       ? "Switch to Voter Portal"
@@ -146,19 +147,51 @@ const Layout = () => {
                 >
                   {isStaffRoute ? (
                     <>
-                      <Users className="h-5 w-5" aria-hidden="true" />
-                      <span className="font-medium">Voter Portal</span>
+                      <Users className="h-5 w-5 inline-block mr-2" />
+                      <span>Voter Portal</span>
                     </>
                   ) : (
                     <>
-                      <LayoutDashboard className="h-5 w-5" aria-hidden="true" />
-                      <span className="font-medium">Staff Dashboard</span>
+                      <LayoutDashboard className="h-5 w-5 inline-block mr-2" />
+                      <span>Staff Login</span>
                     </>
                   )}
                 </Link>
               </div>
-            </nav>
+            </div>
           </div>
+
+          {/* Navigation */}
+          <nav className="gov-nav border-t border-gray-200" role="navigation">
+            <div className="gov-container">
+              <ul className="flex space-x-6">
+                <li>
+                  <Link
+                    to="/"
+                    className="text-accent hover:text-accent/80 transition"
+                  >
+                    Home
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/about"
+                    className="text-accent hover:text-accent/80 transition"
+                  >
+                    About ECI
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contact"
+                    className="text-accent hover:text-accent/80 transition"
+                  >
+                    Contact
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </nav>
         </header>
 
         {/* Voice Recognition Feedback Display */}
@@ -174,63 +207,84 @@ const Layout = () => {
 
         {/* Main Content Area */}
         <main id="main-content" className="flex-1" role="main">
-          <div className="center-container py-8">
+          <div className="gov-container">
             <Outlet />
           </div>
         </main>
 
-        {/* Footer Section */}
-        <footer
-          className="relative z-10 border-t border-white/10 backdrop-blur-xl bg-black/10"
-          role="contentinfo"
-        >
-          <div className="center-container py-8">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <Link
-                to="/"
-                className="flex items-center space-x-2 mb-2 focus-ring"
-                aria-label="VoteX Home"
-              >
-                <Shield className="h-8 w-8 text-blue-400" aria-hidden="true" />
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
-                  VoteX
-                </span>
-              </Link>
-              <nav
-                className="flex items-center space-x-6 text-white/40"
-                aria-label="Footer navigation"
-              >
-                <Link
-                  to="/about"
-                  className="hover:text-white/60 transition-colors focus-ring"
-                >
-                  About
-                </Link>
-                <Link
-                  to="/privacy"
-                  className="hover:text-white/60 transition-colors focus-ring"
-                >
-                  Privacy
-                </Link>
-                <Link
-                  to="/terms"
-                  className="hover:text-white/60 transition-colors focus-ring"
-                >
-                  Terms
-                </Link>
-                <Link
-                  to="/contact"
-                  className="hover:text-white/60 transition-colors focus-ring"
-                >
-                  Contact
-                </Link>
-              </nav>
-              <p className="text-white/40 text-sm">
-                © 2025{" "}
-                <span className="tracking-widest font-semibold text-white/60">
-                  INDIE HUB
-                </span>
-                . All rights reserved.
+        {/* Footer */}
+        <footer className="gov-footer">
+          <div className="gov-container">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div>
+                <h2 className="text-lg font-semibold mb-4">Contact Us</h2>
+                <address className="not-italic">
+                  Election Commission of India
+                  <br />
+                  Nirvachan Sadan
+                  <br />
+                  Ashoka Road, New Delhi-110001
+                  <br />
+                  <a href="tel:+911123052205" className="hover:underline">
+                    +91-11-23052205
+                  </a>
+                  <br />
+                  <a
+                    href="mailto:support@eci.gov.in"
+                    className="hover:underline"
+                  >
+                    support@eci.gov.in
+                  </a>
+                </address>
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold mb-4">Important Links</h2>
+                <ul className="space-y-2">
+                  <li>
+                    <a href="https://eci.gov.in" className="hover:underline">
+                      ECI Website
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/rti" className="hover:underline">
+                      RTI
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/careers" className="hover:underline">
+                      Careers
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold mb-4">Legal</h2>
+                <ul className="space-y-2">
+                  <li>
+                    <Link to="/terms" className="hover:underline">
+                      Terms of Service
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/privacy" className="hover:underline">
+                      Privacy Policy
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/disclaimer" className="hover:underline">
+                      Disclaimer
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div className="mt-8 pt-8 border-t border-white/10 text-center">
+              <p>
+                © {new Date().getFullYear()} Election Commission of India. All
+                rights reserved.
+              </p>
+              <p className="mt-2 text-sm">
+                Last Updated: {new Date().toLocaleDateString("en-IN")}
               </p>
             </div>
           </div>

@@ -16,13 +16,11 @@ export default {
   theme: {
     extend: {
       colors: {
+        primary: "#FF9933", // Deep Saffron (India Flag)
+        secondary: "#138808", // India Green (India Flag)
+        accent: "#000080", // Navy Blue (Government websites)
         white: "#ffffff",
         black: "#000000",
-        primary: {
-          50: "#f6d5f7",
-          100: "#fbe9d7",
-          200: "#b9deed",
-        },
         gray: {
           50: "#f9fafb",
           100: "#f3f4f6",
@@ -72,6 +70,28 @@ export default {
           900: "#14532d",
         },
       },
+      fontFamily: {
+        sans: ["Poppins", "system-ui", "-apple-system", "sans-serif"],
+      },
+      container: {
+        center: true,
+        padding: {
+          DEFAULT: "1rem",
+          sm: "2rem",
+          lg: "4rem",
+          xl: "5rem",
+        },
+        screens: {
+          sm: "640px",
+          md: "768px",
+          lg: "1024px",
+          xl: "1280px",
+          "2xl": "1440px",
+        },
+      },
+      boxShadow: {
+        gov: "0 2px 4px rgba(0, 0, 0, 0.1)",
+      },
       backdropBlur: {
         xs: "2px",
         md: "10px",
@@ -89,7 +109,7 @@ export default {
   },
 
   // Additional plugins
-  plugins: [require("@tailwindcss/forms"), require("@tailwindcss/typography")],
+  plugins: [require("@tailwindcss/forms")],
 
   // Enable modern features
   future: {
@@ -98,10 +118,7 @@ export default {
 
   // Enable all Tailwind features including opacity modifiers
   corePlugins: {
-    opacity: true,
-    backgroundOpacity: true,
-    borderOpacity: true,
-    textOpacity: true,
+    preflight: true,
   },
 
   // Enable arbitrary values

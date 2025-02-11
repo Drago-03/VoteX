@@ -5,30 +5,15 @@
  */
 
 /* Tailwind's base styles */
-@import "tailwindcss/preflight";
+@import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-/* Custom utility classes */
-@layer utilities {
-  .glass-effect {
-    background-color: rgba(255, 255, 255, 0.2);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-  }
-
-  .center-container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-  }
-
-  .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
-  }
-}
-
 @layer components {
+  .glass-effect {
+    @apply bg-white bg-opacity-20 backdrop-blur-md border border-white border-opacity-30 shadow-lg;
+  }
+
   .center-container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
@@ -40,26 +25,23 @@
 
 /* Root styles for consistent typography and rendering */
 :root {
-  /* Font stack prioritizing modern system fonts */
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* Government of India color scheme */
+  --color-primary: #ff9933; /* Deep Saffron */
+  --color-secondary: #138808; /* India Green */
+  --color-accent: #000080; /* Navy Blue */
+  --color-neutral: #ffffff; /* White */
+  --color-text: #333333;
+  --max-width: 1440px;
 
-  /* Base text settings */
+  /* Font stack prioritizing readability */
+  font-family: "Poppins", system-ui, -apple-system, sans-serif;
+  font-size: 16px;
   line-height: 1.5;
-  font-weight: 400;
-  font-size: 16px; /* Base font size for better readability */
-
-  /* Font rendering optimizations */
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 
   /* High contrast mode support */
   @media (prefers-contrast: high) {
-    --text-color: #000000;
-    --background-start: #ffffff;
-    --background-mid: #f0f0f0;
-    --background-end: #ffffff;
+    --color-text: #000000;
+    --color-background: #ffffff;
   }
 }
 
@@ -73,134 +55,80 @@ body,
   scroll-behavior: smooth; /* Smooth scrolling for better UX */
 }
 
-/* Enhanced background with modern gradient */
+/* Base layout */
 body {
-  background: linear-gradient(
-    135deg,
-    var(--background-start, #f6d5f7) 0%,
-    var(--background-mid, #fbe9d7) 50%,
-    var(--background-end, #b9deed) 100%
-  );
-  color: var(--text-color, #2d3748);
-  position: relative;
-  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-
-  /* Improved text readability */
-  letter-spacing: 0.025em;
-
-  /* Better touch handling for mobile */
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-
-  /* Reduce motion if user prefers */
-  @media (prefers-reduced-motion: reduce) {
-    scroll-behavior: auto;
-    * {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: var(--color-text);
 }
 
-/* Add subtle animated background patterns */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(
-      circle at 20% 30%,
-      rgba(255, 255, 255, 0.2) 0%,
-      transparent 40%
-    ),
-    radial-gradient(
-      circle at 80% 70%,
-      rgba(255, 255, 255, 0.2) 0%,
-      transparent 40%
-    );
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Soft floating animation for background elements */
-@keyframes softFloat {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-20px) scale(1.05);
-  }
-}
-
-/* Add floating background shapes */
-body::after {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(
-      circle at 60% 20%,
-      rgba(251, 233, 215, 0.4) 0%,
-      transparent 25%
-    ),
-    radial-gradient(
-      circle at 30% 70%,
-      rgba(185, 222, 237, 0.4) 0%,
-      transparent 25%
-    ),
-    radial-gradient(
-      circle at 80% 60%,
-      rgba(246, 213, 247, 0.4) 0%,
-      transparent 25%
-    );
-  animation: softFloat 20s infinite ease-in-out;
-  pointer-events: none;
-  z-index: 0;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-
-/* Ensure content appears above background effects */
-#root {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+/* Main container */
+.gov-container {
+  max-width: var(--max-width);
   margin: 0 auto;
+  padding: 0 1rem;
   width: 100%;
+  box-sizing: border-box;
 }
 
-/* Main content container */
+/* Header styles */
+.gov-header {
+  background: var(--color-neutral);
+  border-bottom: 3px solid var(--color-primary);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.gov-header-top {
+  background: var(--color-primary);
+  color: var(--color-neutral);
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+}
+
+/* Navigation */
+.gov-nav {
+  background: var(--color-neutral);
+  padding: 1rem 0;
+}
+
+/* Main content area */
 main {
-  flex: 1;
-  width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
+  min-height: calc(100vh - 200px);
+  padding: 2rem 0;
 }
 
-/* Glass effect for containers */
-.glass-container {
-  background: rgba(255, 255, 255, 0.2);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+/* Footer */
+.gov-footer {
+  background: var(--color-accent);
+  color: var(--color-neutral);
+  padding: 2rem 0;
+  margin-top: auto;
 }
 
 /* Accessibility improvements */
+.skip-to-main {
+  position: absolute;
+  top: -9999px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-neutral);
+  padding: 1rem;
+  z-index: 100;
+  color: var(--color-text);
+  text-decoration: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.skip-to-main:focus {
+  top: 0;
+}
+
+/* Screen reader utilities */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -213,19 +141,46 @@ main {
   border: 0;
 }
 
-/* Skip to main content link */
-.skip-to-main {
-  position: absolute;
-  top: -9999px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #fff;
-  padding: 1rem;
-  z-index: 100;
-  border-radius: 0 0 0.5rem 0.5rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+/* Government logo and branding */
+.gov-logo {
+  height: 64px;
+  width: auto;
 }
 
-.skip-to-main:focus {
-  top: 0;
+.gov-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  :root {
+    font-size: 14px;
+  }
+
+  .gov-container {
+    padding: 0 0.5rem;
+  }
+
+  .gov-logo {
+    height: 48px;
+  }
+}
+
+/* High contrast and reduced motion preferences */
+@media (prefers-contrast: high) {
+  .glass-effect {
+    background: var(--color-neutral);
+    border: 2px solid var(--color-text);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

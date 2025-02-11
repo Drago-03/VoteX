@@ -11,7 +11,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import Layout from "./components/Layout";
-import { VoterVerification } from "./components/VoterVerification";
+import VoterVerification from "./components/VoterVerification";
 import { StaffLogin } from "./components/StaffLogin";
 import { StaffDashboard } from "./components/StaffDashboard";
 import { useAuth } from "./hooks/useAuth";
