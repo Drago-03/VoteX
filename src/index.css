@@ -184,3 +184,198 @@ main {
     scroll-behavior: auto !important;
   }
 }
+
+/* Print styles for legal documents */
+@media print {
+  /* Hide unnecessary elements */
+  nav,
+  button,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Reset background colors and shadows */
+  body {
+    background: white !important;
+  }
+
+  /* Adjust typography for print */
+  .prose {
+    font-size: 12pt !important;
+    line-height: 1.6 !important;
+  }
+
+  /* Ensure content fits page width */
+  .max-w-4xl {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Remove decorative elements */
+  .shadow-sm,
+  .shadow-lg,
+  .rounded-xl,
+  .rounded-t-xl,
+  .rounded-b-xl {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* Add page breaks before major sections */
+  h1,
+  h2 {
+    page-break-before: always;
+  }
+
+  /* Prevent orphaned headings */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    page-break-after: avoid;
+  }
+
+  /* Prevent splitting paragraphs */
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Show full URLs for links */
+  a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 90%;
+    color: #666;
+  }
+
+  /* Add header and footer */
+  @page {
+    margin: 2cm;
+    @top-center {
+      content: "Election Commission of India";
+      font-family: "Poppins", system-ui, sans-serif;
+      font-size: 10pt;
+    }
+    @bottom-center {
+      content: "Page " counter(page) " of " counter(pages);
+      font-family: "Poppins", system-ui, sans-serif;
+      font-size: 10pt;
+    }
+  }
+}
+
+/* Enhanced transitions */
+.transition-smooth {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  /* Adjust table of contents for mobile */
+  .fixed.w-72 {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Improve readability on mobile */
+  .prose {
+    font-size: 1rem !important;
+  }
+
+  .prose h1 {
+    font-size: 1.75rem !important;
+  }
+
+  .prose h2 {
+    font-size: 1.5rem !important;
+  }
+
+  /* Better spacing for mobile */
+  .p-8 {
+    padding: 1.5rem !important;
+  }
+
+  .space-x-4 > * + * {
+    margin-left: 0.75rem !important;
+  }
+
+  /* Improve touch targets */
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Enhanced focus styles */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Smooth scrolling for section navigation */
+html {
+  scroll-padding-top: 2rem;
+}
+
+/* Active section highlight animation */
+.text-primary.font-medium {
+  position: relative;
+}
+
+.text-primary.font-medium::after {
+  content: "";
+  position: absolute;
+  left: -1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 1.5rem;
+  background-color: var(--color-primary);
+  border-radius: 0 4px 4px 0;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translate(-100%, -50%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(0, -50%);
+    opacity: 1;
+  }
+}
+
+/* Toast notification styles */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-accent);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 100;
+  animation: toastIn 0.3s ease-out;
+}
+
+@keyframes toastIn {
+  from {
+    transform: translate(-50%, 100%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}

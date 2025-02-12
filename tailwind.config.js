@@ -117,7 +117,7 @@ export default {
   },
 
   // Additional plugins
-  plugins: [require("@tailwindcss/forms")],
+  plugins: [require("@tailwindcss/forms"), require("@tailwindcss/typography")],
 
   // Enable modern features
   future: {

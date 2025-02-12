@@ -39,50 +39,67 @@ const optimizeImageUrl = (url: string) => {
 const galleryImages: GalleryImage[] = [
   {
     id: 1,
-    src: "https://eci.gov.in/img/evm-vvpat.jpg",
-    fallbackSrc: "https://picsum.photos/800/600?random=1",
-    alt: "EVM and VVPAT Machine",
+    src: "https://eci.gov.in/uploads/monthly_2023_03/election-commission-india.jpg",
+    fallbackSrc: "/assets/images/eci-building.jpg",
+    alt: "Election Commission of India Headquarters",
     description:
-      "Electronic Voting Machine (EVM) with Voter Verifiable Paper Audit Trail (VVPAT) system used in Indian elections",
+      "Nirvachan Sadan - The iconic headquarters of the Election Commission of India in New Delhi",
   },
   {
     id: 2,
-    src: "https://ecisveep.nic.in/uploads/monthly_2021_03/sveep-banner.jpg",
-    fallbackSrc: "https://picsum.photos/800/600?random=2",
-    alt: "Voter Awareness Campaign",
+    src: "https://eci.gov.in/uploads/monthly_2023_04/evm-display.jpg",
+    fallbackSrc: "/assets/images/evm-demo.jpg",
+    alt: "EVM Demonstration",
     description:
-      "Election Commission's SVEEP (Systematic Voters' Education and Electoral Participation) program in action",
+      "Election officials demonstrating the use of Electronic Voting Machines (EVMs) to voters",
   },
   {
     id: 3,
-    src: "https://eci.gov.in/img/epic-card.jpg",
-    fallbackSrc: "https://picsum.photos/800/600?random=3",
-    alt: "Voter ID Verification",
-    description: "Electoral officer verifying voter's identity using EPIC card",
+    src: "https://eci.gov.in/uploads/monthly_2023_05/voter-awareness.jpg",
+    fallbackSrc: "/assets/images/voter-awareness.jpg",
+    alt: "Voter Awareness Campaign",
+    description:
+      "SVEEP activities promoting voter awareness and participation in democratic process",
   },
   {
     id: 4,
-    src: "https://eci.gov.in/img/polling-station.jpg",
-    fallbackSrc: "https://picsum.photos/800/600?random=4",
-    alt: "Model Polling Station",
+    src: "https://eci.gov.in/uploads/monthly_2023_06/accessible-voting.jpg",
+    fallbackSrc: "/assets/images/accessible-voting.jpg",
+    alt: "Accessible Voting",
     description:
-      "A model polling station setup with facilities for elderly and differently-abled voters",
+      "Facilities for differently-abled voters ensuring inclusive participation in elections",
   },
   {
     id: 5,
-    src: "https://eci.gov.in/img/nirvachan-sadan.jpg",
-    fallbackSrc: "https://picsum.photos/800/600?random=5",
-    alt: "Election Commission Headquarters",
+    src: "https://eci.gov.in/uploads/monthly_2023_07/women-voters.jpg",
+    fallbackSrc: "/assets/images/women-empowerment.jpg",
+    alt: "Women Voters",
     description:
-      "Nirvachan Sadan - Election Commission of India headquarters in New Delhi",
+      "Women voters participating in the electoral process, showcasing gender equality in Indian democracy",
   },
   {
     id: 6,
-    src: "https://eci.gov.in/img/counting.jpg",
-    fallbackSrc: "https://picsum.photos/800/600?random=6",
+    src: "https://eci.gov.in/uploads/monthly_2023_08/youth-voters.jpg",
+    fallbackSrc: "/assets/images/youth-voters.jpg",
+    alt: "Youth Participation",
+    description:
+      "Young voters exercising their democratic right, representing the future of Indian democracy",
+  },
+  {
+    id: 7,
+    src: "https://eci.gov.in/uploads/monthly_2023_09/counting-day.jpg",
+    fallbackSrc: "/assets/images/vote-counting.jpg",
     alt: "Vote Counting Process",
     description:
-      "Official vote counting process with EVM result display and monitoring",
+      "Transparent vote counting process with EVMs under strict supervision",
+  },
+  {
+    id: 8,
+    src: "https://eci.gov.in/uploads/monthly_2023_10/model-polling.jpg",
+    fallbackSrc: "/assets/images/model-polling.jpg",
+    alt: "Model Polling Station",
+    description:
+      "A model polling station equipped with all modern facilities and safety measures",
   },
 ];
 
@@ -482,37 +499,50 @@ const PhotoGallery: React.FC = () => {
   };
 
   return (
-    <div className="py-12 bg-gray-50">
+    <section className="bg-gradient-to-b from-white to-gray-50 py-16">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+        <h2 className="text-3xl font-bold text-center mb-2 text-gray-800">
           Photo Gallery
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <p className="text-center text-gray-600 mb-8">
+          Glimpses of Indian Democracy in Action
+        </p>
+
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          ref={galleryRef}
+        >
           {galleryImages.map((image) => (
             <div
               key={image.id}
-              className="relative group overflow-hidden rounded-lg shadow-lg cursor-pointer transition-transform duration-300 hover:scale-105 bg-gray-100"
+              className="relative group overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
               onClick={() => setSelectedImage(image)}
             >
-              {loadingStates[image.id] ? (
-                <div className="w-full h-64 flex items-center justify-center">
-                  <LoadingSpinner size="md" />
-                </div>
-              ) : (
+              <div className="aspect-w-16 aspect-h-9">
+                {loadingStates[image.id] && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                    <LoadingSpinner />
+                  </div>
+                )}
                 <img
                   ref={(el) => handleImageRef(el, image.id)}
-                  data-image-id={image.id}
                   src={getImageSource(image)}
                   alt={image.alt}
-                  className="w-full h-64 object-cover transition-opacity duration-300"
+                  className="object-cover w-full h-full transform group-hover:scale-110 transition-transform duration-500"
                   loading="lazy"
                   onError={() => handleImageError(image.id)}
+                  data-image-id={image.id}
                 />
-              )}
-              <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                <p className="text-white text-center px-4">
-                  {image.description}
-                </p>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <h3 className="text-white font-semibold text-lg">
+                    {image.alt}
+                  </h3>
+                  <p className="text-white/90 text-sm line-clamp-2">
+                    {image.description}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
@@ -719,7 +749,7 @@ const PhotoGallery: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 
