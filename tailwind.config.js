@@ -97,9 +97,17 @@ export default {
         md: "10px",
       },
       animation: {
+        spin: "spin 1s linear infinite",
         "soft-float": "softFloat 20s infinite ease-in-out",
       },
+      borderWidth: {
+        3: "3px",
+      },
       keyframes: {
+        spin: {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
         softFloat: {
           "0%, 100%": { transform: "translateY(0) scale(1)" },
           "50%": { transform: "translateY(-20px) scale(1.05)" },
@@ -126,5 +134,10 @@ export default {
     { pattern: /^bg-.*\/\d+$/ },
     { pattern: /^border-.*\/\d+$/ },
     { pattern: /^text-.*\/\d+$/ },
+    "border-t-blue-500",
+    "border-t-gray-500",
+    "border-2",
+    "border-3",
+    "border-4",
   ],
 };

@@ -183,7 +183,7 @@ npm run dev
 npm run firebase:emulators
 ```
 
-The app will be available at http://localhost:3000
+The app will be available at <http://localhost:3000>
 
 ## Production Deployment
 

@@ -8,6 +8,8 @@ import React, { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Shield, Users, Mic, MicOff, LayoutDashboard } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
+import PhotoGallery from "./PhotoGallery";
+import VisitorCounter from "./VisitorCounter";
 
 const Layout = () => {
   // Hooks for navigation and location tracking
@@ -297,6 +299,9 @@ const Layout = () => {
           </div>
         </main>
 
+        {/* Photo Gallery Section */}
+        <PhotoGallery />
+
         {/* Footer */}
         <footer className="gov-footer">
           <div className="gov-container">
@@ -363,12 +368,17 @@ const Layout = () => {
                 </ul>
               </div>
             </div>
-            <div className="mt-8 pt-8 border-t border-white/10 text-center">
-              <p>
-                © {new Date().getFullYear()} Election Commission of India. All
-                rights reserved.
-              </p>
-              <p className="mt-2 text-sm">
+            <div className="mt-8 pt-8 border-t border-white/10">
+              <div className="flex flex-col md:flex-row justify-between items-center">
+                <p>
+                  © {new Date().getFullYear()} Election Commission of India. All
+                  rights reserved.
+                </p>
+                <div className="mt-4 md:mt-0">
+                  <VisitorCounter />
+                </div>
+              </div>
+              <p className="mt-2 text-sm text-center">
                 Last Updated: {new Date().toLocaleDateString("en-IN")}
               </p>
             </div>

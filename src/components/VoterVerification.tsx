@@ -33,7 +33,7 @@ import {
 import { db } from "../firebase";
 import { Link, useNavigate } from "react-router-dom";
 import ErrorBoundary from "./ErrorBoundary";
-import LoadingSpinner from "./LoadingSpinner";
+import { LoadingSpinner } from "./LoadingSpinner";
 import { isConnected } from "../firebase";
 
 type VerificationStatus =
