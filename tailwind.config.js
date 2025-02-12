@@ -99,6 +99,7 @@ export default {
       animation: {
         spin: "spin 1s linear infinite",
         "soft-float": "softFloat 20s infinite ease-in-out",
+        "spin-slow": "spin 30s linear infinite",
       },
       borderWidth: {
         3: "3px",
@@ -112,6 +113,11 @@ export default {
           "0%, 100%": { transform: "translateY(0) scale(1)" },
           "50%": { transform: "translateY(-20px) scale(1.05)" },
         },
+      },
+      // Add animation delay utilities
+      transitionDelay: {
+        200: "200ms",
+        400: "400ms",
       },
     },
   },

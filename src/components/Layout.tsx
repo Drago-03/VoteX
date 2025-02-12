@@ -346,14 +346,14 @@ const Layout = () => {
                     </a>
                   </li>
                   <li>
-                    <a href="/rti" className="hover:underline">
+                    <Link to="/rti" className="hover:underline">
                       RTI
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a href="/careers" className="hover:underline">
+                    <Link to="/careers" className="hover:underline">
                       Careers
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>
