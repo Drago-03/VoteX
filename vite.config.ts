@@ -14,8 +14,6 @@ export default defineConfig({
     react({
       // Include JSX/TSX files
       include: "**/*.{jsx,tsx}",
-      // Enable Fast Refresh
-      refresh: true,
     }),
   ],
 
