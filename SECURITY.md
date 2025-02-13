@@ -54,7 +54,7 @@ At VoteX, we take security seriously. If you believe you've found a security vul
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.x.x   | :white_check_mark: |
+| 1.0.0   | :white_check_mark: |
 | < 1.0   | :x:                |
 
 ## Best Practices
