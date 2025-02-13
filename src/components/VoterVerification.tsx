@@ -20,6 +20,9 @@ import {
   MicOff,
   Keyboard,
   Shield,
+  CheckCircle2,
+  RefreshCcw,
+  HelpCircle,
 } from "lucide-react";
 import {
   collection,
@@ -35,6 +38,12 @@ import { Link, useNavigate } from "react-router-dom";
 import ErrorBoundary from "./ErrorBoundary";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { isConnected } from "../firebase";
+import { speak } from "../utils/speech";
+import {
+  VoterVerificationProps,
+  VerificationStatus,
+  VerificationState,
+} from "../types/verification";
 
 type VerificationStatus =
   | "idle"
@@ -97,6 +106,26 @@ interface VoterVerificationProps {
   onVerificationComplete?: (success: boolean) => void;
 }
 
+interface VerificationState {
+  isHumanDetected: boolean;
+  isCameraReady: boolean;
+  isPhotoTaken: boolean;
+  isFingerPrintScanned: boolean;
+  isAadhaarVerified: boolean;
+  isVoterIdConfirmed: boolean;
+  isVoterListVerified: boolean;
+  photoUrl: string | null;
+  fingerPrintData: string | null;
+  voterDetails: {
+    voterId: string;
+    name: string;
+    fatherName: string;
+    address: string;
+    constituency: string;
+  } | null;
+  error: string | null;
+}
+
 const VoterVerification: React.FC<VoterVerificationProps> = ({
   onVerificationComplete,
 }) => {
@@ -124,6 +153,24 @@ const VoterVerification: React.FC<VoterVerificationProps> = ({
   const VERIFICATION_TIMEOUT = 300000; // 5 minutes in milliseconds
 
   const navigate = useNavigate();
+
+  const [state, setState] = useState<VerificationState>({
+    isHumanDetected: false,
+    isCameraReady: false,
+    isPhotoTaken: false,
+    isFingerPrintScanned: false,
+    isAadhaarVerified: false,
+    isVoterIdConfirmed: false,
+    isVoterListVerified: false,
+    photoUrl: null,
+    fingerPrintData: null,
+    voterDetails: null,
+    error: null,
+  });
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   /**
    * Validate Voter ID format (ABC1234567)
@@ -827,6 +874,213 @@ const VoterVerification: React.FC<VoterVerificationProps> = ({
     );
   }, [voterData.voterId, voterData.name, verificationAttempts]);
 
+  // Initialize camera and voice recognition
+  useEffect(() => {
+    initCamera();
+    initVoiceRecognition();
+    startHumanDetection();
+
+    return () => {
+      stopCamera();
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+  const initCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
+        audio: false,
+      });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setState((prev) => ({ ...prev, isCameraReady: true }));
+      }
+    } catch (error) {
+      setState((prev) => ({
+        ...prev,
+        error: "Camera access denied. Please allow camera access.",
+      }));
+    }
+  };
+
+  const initVoiceRecognition = () => {
+    if ("webkitSpeechRecognition" in window) {
+      recognitionRef.current = new (window as any).webkitSpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+
+      recognitionRef.current.onresult = (event: any) => {
+        const response = event.results[0][0].transcript.toLowerCase();
+        handleVoiceResponse(response);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  };
+
+  const startHumanDetection = () => {
+    // Simulated human detection - in real implementation, use TensorFlow.js or similar
+    setTimeout(() => {
+      setState((prev) => ({ ...prev, isHumanDetected: true }));
+      speak("Please look into the camera for photo verification.");
+    }, 2000);
+  };
+
+  const takePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const context = canvasRef.current.getContext("2d");
+      if (context) {
+        context.drawImage(videoRef.current, 0, 0, 640, 480);
+        const photoUrl = canvasRef.current.toDataURL("image/jpeg");
+        setState((prev) => ({ ...prev, isPhotoTaken: true, photoUrl }));
+        speak("Please place your finger on the fingerprint scanner.");
+      }
+    }
+  };
+
+  const scanFingerprint = () => {
+    // Simulated fingerprint scanning - integrate with actual fingerprint SDK
+    setTimeout(() => {
+      setState((prev) => ({
+        ...prev,
+        isFingerPrintScanned: true,
+        fingerPrintData: "simulated-fingerprint-data",
+      }));
+      verifyAadhaar();
+    }, 2000);
+  };
+
+  const verifyAadhaar = () => {
+    // Simulated Aadhaar verification - integrate with actual Aadhaar API
+    setTimeout(() => {
+      setState((prev) => ({
+        ...prev,
+        isAadhaarVerified: true,
+        voterDetails: {
+          voterId: "ABC1234567",
+          name: "John Doe",
+          fatherName: "Richard Doe",
+          address: "123 Main St, New Delhi",
+          constituency: "New Delhi",
+        },
+      }));
+      speak(
+        "Is this your Voter ID: ABC1234567? Please say yes or no to confirm."
+      );
+      startVoiceRecognition();
+    }, 2000);
+  };
+
+  const verifyVoterList = () => {
+    // Simulated voter list verification - integrate with actual voter database
+    setTimeout(() => {
+      const isInVoterList = true; // Simulate database check
+      setState((prev) => ({ ...prev, isVoterListVerified: isInVoterList }));
+
+      if (isInVoterList) {
+        speak(
+          "Verification completed successfully. You are registered to vote in this constituency."
+        );
+      } else {
+        speak(
+          "Verification failed. Your name is not in the voter list for this constituency."
+        );
+      }
+    }, 2000);
+  };
+
+  const startVoiceRecognition = () => {
+    if (recognitionRef.current) {
+      setIsListening(true);
+      recognitionRef.current.start();
+    }
+  };
+
+  const handleVoiceResponse = (response: string) => {
+    if (response.includes("yes")) {
+      setState((prev) => ({ ...prev, isVoterIdConfirmed: true }));
+      verifyVoterList();
+    } else if (response.includes("no")) {
+      resetVerification();
+      speak("Let's try the verification process again.");
+    }
+  };
+
+  const resetVerification = () => {
+    setState({
+      isHumanDetected: false,
+      isCameraReady: true,
+      isPhotoTaken: false,
+      isFingerPrintScanned: false,
+      isAadhaarVerified: false,
+      isVoterIdConfirmed: false,
+      isVoterListVerified: false,
+      photoUrl: null,
+      fingerPrintData: null,
+      voterDetails: null,
+      error: null,
+    });
+    startHumanDetection();
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+    }
+  };
+
+  const renderStatus = () => {
+    if (state.error) {
+      return (
+        <div className="bg-red-50 p-4 rounded-lg flex items-center gap-3">
+          <AlertCircle className="text-red-500" />
+          <p className="text-red-700">{state.error}</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        <StatusItem
+          icon={<Camera />}
+          text="Human Detection"
+          status={state.isHumanDetected}
+        />
+        <StatusItem
+          icon={<Camera />}
+          text="Photo Capture"
+          status={state.isPhotoTaken}
+        />
+        <StatusItem
+          icon={<Fingerprint />}
+          text="Fingerprint Scan"
+          status={state.isFingerPrintScanned}
+        />
+        <StatusItem
+          icon={<UserCheck />}
+          text="Aadhaar Verification"
+          status={state.isAadhaarVerified}
+        />
+        <StatusItem
+          icon={<Mic />}
+          text="Voter ID Confirmation"
+          status={state.isVoterIdConfirmed}
+        />
+        <StatusItem
+          icon={<CheckCircle2 />}
+          text="Voter List Verification"
+          status={state.isVoterListVerified}
+        />
+      </div>
+    );
+  };
+
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -1024,5 +1278,19 @@ const VoterVerification: React.FC<VoterVerificationProps> = ({
     </ErrorBoundary>
   );
 };
+
+interface StatusItemProps {
+  icon: React.ReactNode;
+  text: string;
+  status: boolean;
+}
+
+const StatusItem: React.FC<StatusItemProps> = ({ icon, text, status }) => (
+  <div className="flex items-center gap-3">
+    <span className={status ? "text-green-500" : "text-gray-400"}>{icon}</span>
+    <span className={status ? "text-green-700" : "text-gray-600"}>{text}</span>
+    {status && <CheckCircle2 className="h-5 w-5 text-green-500 ml-auto" />}
+  </div>
+);
 
 export default React.memo(VoterVerification);

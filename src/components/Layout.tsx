@@ -216,7 +216,7 @@ const Layout = () => {
                   aria-label={
                     isListening ? "Stop voice commands" : "Start voice commands"
                   }
-                  aria-pressed={isListening.toString() === "true"}
+                  aria-pressed={isListening}
                 >
                   {isListening ? (
                     <Mic className="h-5 w-5 text-secondary" />
