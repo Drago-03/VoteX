@@ -101,27 +101,29 @@ const Layout = () => {
         Skip to main content
       </a>
 
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-gradient-to-b from-primary/5 via-white to-secondary/5">
         {/* Government Header */}
-        <header className="gov-header">
+        <header className="bg-white shadow-lg border-t-4 border-primary">
           {/* Top Bar */}
-          <div className="gov-header-top">
-            <div className="gov-container flex justify-between items-center">
+          <div className="bg-gray-50 border-b border-gray-200">
+            <div className="gov-container flex justify-between items-center py-2">
               <div className="flex items-center space-x-4">
-                <span>Government of India</span>
-                <span>|</span>
-                <span>भारत सरकार</span>
+                <span className="text-gray-700 font-medium">
+                  Government of India
+                </span>
+                <span className="text-gray-400">|</span>
+                <span className="text-gray-700 font-medium">भारत सरकार</span>
               </div>
               <div className="flex items-center space-x-4">
                 <button
-                  className="text-sm hover:underline"
+                  className="text-sm hover:text-primary transition-colors"
                   onClick={handleScreenReader}
                   aria-label="Activate screen reader"
                 >
                   Screen Reader
                 </button>
                 <select
-                  className="bg-transparent border-none text-sm"
+                  className="bg-transparent border-none text-sm hover:text-primary focus:ring-primary"
                   aria-label="Select language"
                   value={currentLanguage.code}
                   onChange={handleLanguageChange}
@@ -137,14 +139,14 @@ const Layout = () => {
           </div>
 
           {/* Main Header */}
-          <div className="gov-container py-4">
+          <div className="gov-container py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-6">
                 {/* Government Emblem and ECI Title */}
                 <div className="flex items-center space-x-4">
                   <div className="flex flex-col items-center">
                     {/* Ashoka Emblem */}
-                    <div className="w-16 h-16 relative">
+                    <div className="w-16 h-16 relative hover:scale-105 transition-transform">
                       <svg viewBox="0 0 320 320" className="w-full h-full">
                         <circle
                           cx="160"
@@ -191,14 +193,14 @@ const Layout = () => {
                         ))}
                       </svg>
                     </div>
-                    <span className="text-[10px] font-semibold text-center mt-1">
+                    <span className="text-[10px] font-semibold text-center mt-1 text-primary">
                       सत्यमेव जयते
                     </span>
                   </div>
                   <div>
-                    <h1 className="gov-title text-2xl font-bold">
+                    <h1 className="gov-title text-2xl font-bold text-gray-800 hover:text-primary transition-colors">
                       Election Commission of India
-                      <span className="block text-lg font-semibold text-gray-700">
+                      <span className="block text-lg font-semibold text-secondary">
                         भारत निर्वाचन आयोग
                       </span>
                     </h1>
@@ -210,22 +212,22 @@ const Layout = () => {
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => setIsListening(!isListening)}
-                  className="p-3 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                  className="p-3 rounded-lg transition-all duration-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                   aria-label={
                     isListening ? "Stop voice commands" : "Start voice commands"
                   }
-                  aria-pressed={isListening}
+                  aria-pressed={isListening.toString() === "true"}
                 >
                   {isListening ? (
-                    <Mic className="h-5 w-5 text-green-600" />
+                    <Mic className="h-5 w-5 text-secondary" />
                   ) : (
-                    <MicOff className="h-5 w-5 text-gray-600" />
+                    <MicOff className="h-5 w-5 text-gray-600 hover:text-primary" />
                   )}
                 </button>
 
                 <Link
                   to={isStaffRoute ? "/" : "/staff"}
-                  className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                  className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-all duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transform hover:-translate-y-0.5"
                   aria-label={
                     isStaffRoute
                       ? "Switch to Voter Portal"
@@ -284,11 +286,19 @@ const Layout = () => {
         {/* Voice Recognition Feedback Display */}
         {voiceMessage && (
           <div
-            className="fixed bottom-4 right-4 max-w-md p-4 backdrop-blur-xl bg-white/10 rounded-2xl border border-white/20 text-white shadow-lg shadow-purple-500/20 animate-fadeIn"
+            className="fixed bottom-4 right-4 max-w-md p-6 bg-gradient-to-br from-primary/90 to-secondary/90 rounded-2xl border border-white/20 text-white shadow-lg backdrop-blur-xl transform transition-all duration-300 ease-in-out hover:scale-105"
             role="status"
             aria-live="polite"
           >
-            <p className="text-sm">{voiceMessage}</p>
+            <div className="flex items-start space-x-3">
+              <Mic className="h-5 w-5 text-white/90 animate-pulse" />
+              <div>
+                <p className="text-sm font-medium">{voiceMessage}</p>
+                <p className="text-xs text-white/70 mt-1">
+                  Voice command detected
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -336,14 +346,14 @@ const Layout = () => {
                     </a>
                   </li>
                   <li>
-                    <a href="/rti" className="hover:underline">
+                    <Link to="/rti" className="hover:underline">
                       RTI
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a href="/careers" className="hover:underline">
+                    <Link to="/careers" className="hover:underline">
                       Careers
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>
@@ -351,17 +361,26 @@ const Layout = () => {
                 <h2 className="text-lg font-semibold mb-4">Legal</h2>
                 <ul className="space-y-2">
                   <li>
-                    <Link to="/terms" className="hover:underline">
+                    <Link
+                      to="/legal/terms"
+                      className="text-gray-600 hover:text-primary transition-colors"
+                    >
                       Terms of Service
                     </Link>
                   </li>
                   <li>
-                    <Link to="/privacy" className="hover:underline">
+                    <Link
+                      to="/legal/privacy"
+                      className="text-gray-600 hover:text-primary transition-colors"
+                    >
                       Privacy Policy
                     </Link>
                   </li>
                   <li>
-                    <Link to="/disclaimer" className="hover:underline">
+                    <Link
+                      to="/legal/disclaimer"
+                      className="text-gray-600 hover:text-primary transition-colors"
+                    >
                       Disclaimer
                     </Link>
                   </li>

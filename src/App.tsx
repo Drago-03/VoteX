@@ -19,6 +19,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import LegalDocument from "./pages/LegalDocument";
+import RTI from "./pages/RTI";
+import Careers from "./pages/Careers";
 
 // Loading component for Suspense fallback
 const Loading: React.FC = () => (
@@ -41,6 +44,9 @@ const App: React.FC = () => {
               <Route path="about" element={<About />} />
               <Route path="contact" element={<Contact />} />
               <Route path="staff" element={<StaffLogin />} />
+              <Route path="legal/:documentType" element={<LegalDocument />} />
+              <Route path="rti" element={<RTI />} />
+              <Route path="careers" element={<Careers />} />
             </Route>
             <Route
               path="/dashboard/*"

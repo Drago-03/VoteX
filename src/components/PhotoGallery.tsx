@@ -16,73 +16,112 @@ import {
   Twitter,
   Linkedin,
   Link,
+  Filter,
+  Calendar,
+  MapPin,
 } from "lucide-react";
 
 interface GalleryImage {
   id: number;
   src: string;
-  fallbackSrc: string;
   alt: string;
   description: string;
-  optimizedSrc?: string;
+  category: string;
+  date: string;
+  location: string;
 }
 
-// CDN configuration for image optimization
-const CDN_URL = "https://res.cloudinary.com/your-cloud-name/image/fetch/";
-const CDN_PARAMS = "f_auto,q_auto,w_800,c_limit/";
-
-const optimizeImageUrl = (url: string) => {
-  if (!url.startsWith("http")) return url;
-  return `${CDN_URL}${CDN_PARAMS}${encodeURIComponent(url)}`;
-};
+// Define image categories
+const categories = [
+  "All",
+  "Infrastructure",
+  "Technology",
+  "Events",
+  "Awareness",
+  "Training",
+  "Process",
+];
 
 const galleryImages: GalleryImage[] = [
   {
     id: 1,
-    src: "https://eci.gov.in/img/evm-vvpat.jpg",
-    fallbackSrc: "https://picsum.photos/800/600?random=1",
-    alt: "EVM and VVPAT Machine",
+    src: "https://picsum.photos/800/600?eci=headquarters",
+    alt: "Election Commission of India Headquarters",
     description:
-      "Electronic Voting Machine (EVM) with Voter Verifiable Paper Audit Trail (VVPAT) system used in Indian elections",
+      "Nirvachan Sadan - The iconic headquarters of the Election Commission of India in New Delhi",
+    category: "Infrastructure",
+    date: "2024",
+    location: "New Delhi",
   },
   {
     id: 2,
-    src: "https://ecisveep.nic.in/uploads/monthly_2021_03/sveep-banner.jpg",
-    fallbackSrc: "https://picsum.photos/800/600?random=2",
-    alt: "Voter Awareness Campaign",
+    src: "https://picsum.photos/800/600?eci=evm",
+    alt: "EVM Demonstration",
     description:
-      "Election Commission's SVEEP (Systematic Voters' Education and Electoral Participation) program in action",
+      "Election officials demonstrating the use of Electronic Voting Machines (EVMs) and VVPAT system",
+    category: "Technology",
+    date: "2024",
+    location: "Various Locations",
   },
   {
     id: 3,
-    src: "https://eci.gov.in/img/epic-card.jpg",
-    fallbackSrc: "https://picsum.photos/800/600?random=3",
-    alt: "Voter ID Verification",
-    description: "Electoral officer verifying voter's identity using EPIC card",
+    src: "https://picsum.photos/800/600?eci=nvd",
+    alt: "National Voters' Day Celebration",
+    description:
+      "Celebration of National Voters' Day on January 25th, promoting democratic participation",
+    category: "Events",
+    date: "January 25, 2024",
+    location: "Pan India",
   },
   {
     id: 4,
-    src: "https://eci.gov.in/img/polling-station.jpg",
-    fallbackSrc: "https://picsum.photos/800/600?random=4",
-    alt: "Model Polling Station",
+    src: "https://picsum.photos/800/600?eci=registration",
+    alt: "Voter Registration Drive",
     description:
-      "A model polling station setup with facilities for elderly and differently-abled voters",
+      "Special voter registration campaign to ensure maximum electoral participation",
+    category: "Awareness",
+    date: "2024",
+    location: "Multiple States",
   },
   {
     id: 5,
-    src: "https://eci.gov.in/img/nirvachan-sadan.jpg",
-    fallbackSrc: "https://picsum.photos/800/600?random=5",
-    alt: "Election Commission Headquarters",
+    src: "https://picsum.photos/800/600?eci=training",
+    alt: "Election Officials Training",
     description:
-      "Nirvachan Sadan - Election Commission of India headquarters in New Delhi",
+      "Training session for election officials on electoral processes and EVM operation",
+    category: "Training",
+    date: "2024",
+    location: "Regional Offices",
   },
   {
     id: 6,
-    src: "https://eci.gov.in/img/counting.jpg",
-    fallbackSrc: "https://picsum.photos/800/600?random=6",
+    src: "https://picsum.photos/800/600?eci=accessible",
+    alt: "Accessible Voting Facilities",
+    description:
+      "Special arrangements ensuring accessible voting for elderly and differently-abled voters",
+    category: "Process",
+    date: "2024",
+    location: "Nationwide",
+  },
+  {
+    id: 7,
+    src: "https://picsum.photos/800/600?eci=counting",
     alt: "Vote Counting Process",
     description:
-      "Official vote counting process with EVM result display and monitoring",
+      "Systematic counting of votes under strict supervision and security",
+    category: "Process",
+    date: "2024",
+    location: "Counting Centers",
+  },
+  {
+    id: 8,
+    src: "https://picsum.photos/800/600?eci=awareness",
+    alt: "Voter Awareness Campaign",
+    description:
+      "SVEEP campaign activities to educate voters about their electoral rights and responsibilities",
+    category: "Awareness",
+    date: "2024",
+    location: "Pan India",
   },
 ];
 
@@ -115,6 +154,9 @@ const PhotoGallery: React.FC = () => {
   const [touchDistance, setTouchDistance] = useState<number | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const thumbnailsRef = useRef<HTMLDivElement>(null);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [filteredImages, setFilteredImages] = useState(galleryImages);
+  const [columns, setColumns] = useState(4);
 
   // Handle keyboard navigation
   const handleKeyDown = useCallback(
@@ -187,29 +229,20 @@ const PhotoGallery: React.FC = () => {
     setLoadingStates((prev) => ({ ...prev, [image.id]: true }));
 
     try {
-      const optimizedUrl = optimizeImageUrl(image.src);
       const img = new Image();
 
       img.onload = () => {
-        setOptimizedImages((prev) => ({ ...prev, [image.id]: optimizedUrl }));
+        setOptimizedImages((prev) => ({ ...prev, [image.id]: image.src }));
         setPreloadedImages((prev) => new Set(prev).add(image.id));
         setLoadingStates((prev) => ({ ...prev, [image.id]: false }));
       };
 
       img.onerror = () => {
-        const fallbackImg = new Image();
-        fallbackImg.onload = () => {
-          setLoadingStates((prev) => ({ ...prev, [image.id]: false }));
-          setPreloadedImages((prev) => new Set(prev).add(image.id));
-        };
-        fallbackImg.onerror = () => {
-          handleImageError(image.id);
-          setLoadingStates((prev) => ({ ...prev, [image.id]: false }));
-        };
-        fallbackImg.src = image.fallbackSrc;
+        handleImageError(image.id);
+        setLoadingStates((prev) => ({ ...prev, [image.id]: false }));
       };
 
-      img.src = optimizedUrl;
+      img.src = image.src;
     } catch (error) {
       handleImageError(image.id);
       setLoadingStates((prev) => ({ ...prev, [image.id]: false }));
@@ -221,7 +254,7 @@ const PhotoGallery: React.FC = () => {
   };
 
   const getImageSource = (image: GalleryImage) => {
-    if (imageErrors[image.id]) return image.fallbackSrc;
+    if (imageErrors[image.id]) return image.src;
     return optimizedImages[image.id] || image.src;
   };
 
@@ -481,101 +514,133 @@ const PhotoGallery: React.FC = () => {
     window.open(shareUrl, "_blank", "width=600,height=400");
   };
 
+  // Filter images based on selected category
+  useEffect(() => {
+    if (selectedCategory === "All") {
+      setFilteredImages(galleryImages);
+    } else {
+      setFilteredImages(
+        galleryImages.filter((img) => img.category === selectedCategory)
+      );
+    }
+  }, [selectedCategory]);
+
+  // Responsive columns
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width < 640) setColumns(1);
+      else if (width < 768) setColumns(2);
+      else if (width < 1024) setColumns(3);
+      else setColumns(4);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
-    <div className="py-12 bg-gray-50">
+    <section className="bg-gradient-to-b from-white to-gray-50 py-16">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+        <h2 className="text-3xl font-bold text-center mb-2 text-gray-800">
           Photo Gallery
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {galleryImages.map((image) => (
+        <p className="text-center text-gray-600 mb-8">
+          Glimpses of Indian Democracy in Action
+        </p>
+
+        {/* Category Filter */}
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-4 py-2 rounded-full transition-all duration-300 ${
+                selectedCategory === category
+                  ? "bg-primary text-white shadow-md"
+                  : "bg-white text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
+        {/* Masonry Grid */}
+        <div
+          className="grid gap-6"
+          style={{
+            gridTemplateColumns: `repeat(${columns}, 1fr)`,
+          }}
+        >
+          {filteredImages.map((image) => (
             <div
               key={image.id}
-              className="relative group overflow-hidden rounded-lg shadow-lg cursor-pointer transition-transform duration-300 hover:scale-105 bg-gray-100"
+              className="relative group overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
               onClick={() => setSelectedImage(image)}
             >
-              {loadingStates[image.id] ? (
-                <div className="w-full h-64 flex items-center justify-center">
-                  <LoadingSpinner size="md" />
-                </div>
-              ) : (
+              <div className="aspect-w-16 aspect-h-9">
+                {loadingStates[image.id] && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                    <LoadingSpinner />
+                  </div>
+                )}
                 <img
                   ref={(el) => handleImageRef(el, image.id)}
-                  data-image-id={image.id}
                   src={getImageSource(image)}
                   alt={image.alt}
-                  className="w-full h-64 object-cover transition-opacity duration-300"
+                  className="object-cover w-full h-full transform group-hover:scale-110 transition-transform duration-500"
                   loading="lazy"
                   onError={() => handleImageError(image.id)}
+                  data-image-id={image.id}
                 />
-              )}
-              <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                <p className="text-white text-center px-4">
-                  {image.description}
-                </p>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <h3 className="text-white font-semibold text-lg mb-1">
+                    {image.alt}
+                  </h3>
+                  <div className="flex items-center gap-2 text-white/80 text-sm mb-2">
+                    <Calendar className="h-4 w-4" />
+                    <span>{image.date}</span>
+                    <MapPin className="h-4 w-4 ml-2" />
+                    <span>{image.location}</span>
+                  </div>
+                  <p className="text-white/90 text-sm line-clamp-2">
+                    {image.description}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
         </div>
-      </div>
 
-      {/* Modal with Carousel */}
-      {selectedImage && (
-        <div
-          ref={galleryRef}
-          className="fixed inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-center z-50 p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget && !isDragging)
-              setSelectedImage(null);
-          }}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          <div className="max-w-6xl w-full relative flex-1">
-            {/* Controls overlay */}
+        {/* Modal View */}
+        {selectedImage && (
+          <div
+            ref={galleryRef}
+            className="fixed inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-center z-50 p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget && !isDragging)
+                setSelectedImage(null);
+            }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            {/* Modal Controls */}
             <div className="absolute top-4 right-4 flex items-center space-x-4 z-10">
               <button
                 onClick={() => setIsSlideshow(!isSlideshow)}
-                className="text-white hover:text-gray-300"
+                className="text-white hover:text-gray-300 transition-colors"
                 aria-label={isSlideshow ? "Pause slideshow" : "Start slideshow"}
               >
                 {isSlideshow ? <Pause size={24} /> : <Play size={24} />}
               </button>
               <button
-                onClick={() => handleSocialShare("facebook", selectedImage)}
-                className="text-white hover:text-gray-300"
-                aria-label="Share on Facebook"
-              >
-                <Facebook size={24} />
-              </button>
-              <button
-                onClick={() => handleSocialShare("twitter", selectedImage)}
-                className="text-white hover:text-gray-300"
-                aria-label="Share on Twitter"
-              >
-                <Twitter size={24} />
-              </button>
-              <button
-                onClick={() => handleSocialShare("linkedin", selectedImage)}
-                className="text-white hover:text-gray-300"
-                aria-label="Share on LinkedIn"
-              >
-                <Linkedin size={24} />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleShare(selectedImage);
-                }}
-                className="text-white hover:text-gray-300"
-                aria-label="Copy link"
-              >
-                <Link size={24} />
-              </button>
-              <button
                 onClick={handleZoomIn}
-                className="text-white hover:text-gray-300"
+                className="text-white hover:text-gray-300 transition-colors"
                 disabled={zoomLevel >= 3}
                 aria-label="Zoom in"
               >
@@ -583,7 +648,7 @@ const PhotoGallery: React.FC = () => {
               </button>
               <button
                 onClick={handleZoomOut}
-                className="text-white hover:text-gray-300"
+                className="text-white hover:text-gray-300 transition-colors"
                 disabled={zoomLevel <= 1}
                 aria-label="Zoom out"
               >
@@ -591,7 +656,7 @@ const PhotoGallery: React.FC = () => {
               </button>
               <button
                 onClick={toggleFullscreen}
-                className="text-white hover:text-gray-300"
+                className="text-white hover:text-gray-300 transition-colors"
                 aria-label={
                   isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
                 }
@@ -602,21 +667,89 @@ const PhotoGallery: React.FC = () => {
                   <Maximize2 size={24} />
                 )}
               </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShare(selectedImage);
+                }}
+                className="text-white hover:text-gray-300 transition-colors"
+                aria-label="Share image"
+              >
+                <Share2 size={24} />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDownload(selectedImage);
+                }}
+                className="text-white hover:text-gray-300 transition-colors"
+                aria-label="Download image"
+              >
+                <Download size={24} />
+              </button>
             </div>
 
-            {/* Navigation buttons */}
+            {/* Image Container */}
+            <div className="max-w-6xl w-full relative flex-1">
+              <div
+                className="relative overflow-hidden"
+                onMouseDown={handleImageDragStart}
+                onMouseMove={handleImageDragMove}
+                onMouseUp={handleImageDragEnd}
+                onMouseLeave={handleImageDragEnd}
+              >
+                <img
+                  ref={modalImageRef}
+                  src={getImageSource(selectedImage)}
+                  alt={selectedImage.alt}
+                  className="w-full h-auto max-h-[80vh] object-contain transition-transform duration-200"
+                  style={{
+                    transform: `scale(${zoomLevel}) translate(${dragPosition.x}px, ${dragPosition.y}px)`,
+                    cursor: isZoomed ? "grab" : "default",
+                  }}
+                />
+              </div>
+
+              {/* Image Info */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+                <h3 className="text-white text-2xl font-bold mb-2">
+                  {selectedImage.alt}
+                </h3>
+                <div className="flex items-center gap-4 text-white/80 mb-2">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    <span>{selectedImage.date}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    <span>{selectedImage.location}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4" />
+                    <span>{selectedImage.category}</span>
+                  </div>
+                </div>
+                <p className="text-white/90">{selectedImage.description}</p>
+              </div>
+            </div>
+
+            {/* Navigation Buttons */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                const currentIndex = galleryImages.findIndex(
+                const currentIndex = filteredImages.findIndex(
                   (img) => img.id === selectedImage.id
                 );
                 if (currentIndex > 0) {
-                  setSelectedImage(galleryImages[currentIndex - 1]);
+                  setSelectedImage(filteredImages[currentIndex - 1]);
                 }
               }}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={selectedImage.id === galleryImages[0].id}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={
+                filteredImages.findIndex(
+                  (img) => img.id === selectedImage.id
+                ) === 0
+              }
               aria-label="Previous image"
             >
               <ChevronLeft size={36} />
@@ -625,101 +758,57 @@ const PhotoGallery: React.FC = () => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                const currentIndex = galleryImages.findIndex(
+                const currentIndex = filteredImages.findIndex(
                   (img) => img.id === selectedImage.id
                 );
-                if (currentIndex < galleryImages.length - 1) {
-                  setSelectedImage(galleryImages[currentIndex + 1]);
+                if (currentIndex < filteredImages.length - 1) {
+                  setSelectedImage(filteredImages[currentIndex + 1]);
                 }
               }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               disabled={
-                selectedImage.id === galleryImages[galleryImages.length - 1].id
+                filteredImages.findIndex(
+                  (img) => img.id === selectedImage.id
+                ) ===
+                filteredImages.length - 1
               }
               aria-label="Next image"
             >
               <ChevronRight size={36} />
             </button>
 
-            <div className="bg-white rounded-lg overflow-hidden">
-              {loadingStates[selectedImage.id] ? (
-                <div className="w-full h-96 flex items-center justify-center">
-                  <LoadingSpinner size="lg" />
-                </div>
-              ) : (
+            {/* Thumbnails */}
+            <div className="absolute bottom-4 left-0 right-0 px-4">
+              <div className="max-w-6xl mx-auto">
                 <div
-                  className="relative overflow-hidden"
-                  onMouseDown={handleImageDragStart}
-                  onMouseMove={handleImageDragMove}
-                  onMouseUp={handleImageDragEnd}
-                  onMouseLeave={handleImageDragEnd}
+                  ref={thumbnailsRef}
+                  className="flex gap-2 overflow-x-auto py-2 px-4 bg-black/50 rounded-lg"
                 >
-                  <img
-                    ref={modalImageRef}
-                    src={getImageSource(selectedImage)}
-                    alt={selectedImage.alt}
-                    className="w-full h-auto max-h-[80vh] object-contain transition-transform duration-200"
-                    style={{
-                      transform: `scale(${zoomLevel}) translate(${dragPosition.x}px, ${dragPosition.y}px)`,
-                      cursor: isZoomed ? "grab" : "default",
-                    }}
-                    onError={() => handleImageError(selectedImage.id)}
-                  />
-                </div>
-              )}
-              <div className="p-4 flex justify-between items-center">
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">
-                    {selectedImage.alt}
-                  </h3>
-                  <p className="text-gray-600">{selectedImage.description}</p>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDownload(selectedImage);
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                    aria-label="Download image"
-                  >
-                    <Download size={20} />
-                    <span>Download</span>
-                  </button>
+                  {filteredImages.map((image) => (
+                    <button
+                      key={image.id}
+                      onClick={() => setSelectedImage(image)}
+                      className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden transition-all duration-200 ${
+                        selectedImage.id === image.id
+                          ? "ring-2 ring-primary scale-105"
+                          : "opacity-60 hover:opacity-100"
+                      }`}
+                    >
+                      <img
+                        src={getImageSource(image)}
+                        alt={image.alt}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Thumbnails Navigation */}
-          <div
-            ref={thumbnailsRef}
-            className="w-full max-w-6xl mt-4 overflow-x-auto"
-          >
-            <div className="flex space-x-2 px-4">
-              {galleryImages.map((image) => (
-                <button
-                  key={image.id}
-                  onClick={() => setSelectedImage(image)}
-                  className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden transition-all duration-200 ${
-                    selectedImage.id === image.id
-                      ? "ring-2 ring-blue-500 scale-105"
-                      : "opacity-60 hover:opacity-100"
-                  }`}
-                >
-                  <img
-                    src={getImageSource(image)}
-                    alt={image.alt}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </section>
   );
 };
 
