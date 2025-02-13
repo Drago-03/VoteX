@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Shield,
   User,
@@ -15,18 +15,31 @@ import {
   ChevronLeft,
   AlertCircle,
 } from "lucide-react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
 
 export const StaffLogin: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError(null);
-    // Add your authentication logic here
-    setTimeout(() => setIsLoading(false), 2000); // Simulated loading
+    setIsLoading(true);
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate("/staff-dashboard");
+    } catch (error) {
+      setError("Invalid email or password");
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -86,7 +99,7 @@ export const StaffLogin: React.FC = () => {
           </div>
 
           {/* Login Form */}
-          <form className="px-8 py-6 space-y-6" onSubmit={handleSubmit}>
+          <form className="px-8 py-6 space-y-6" onSubmit={handleLogin}>
             {error && (
               <div className="flex items-center gap-2 text-red-500 bg-red-50 p-3 rounded-lg">
                 <AlertCircle className="h-5 w-5" />
@@ -96,22 +109,24 @@ export const StaffLogin: React.FC = () => {
 
             <div>
               <label
-                htmlFor="staff-id"
+                htmlFor="email"
                 className="block text-sm font-medium text-gray-700"
               >
-                Staff ID
+                Email
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <User className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="staff-id"
-                  name="staff-id"
-                  type="text"
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
-                  placeholder="Enter your Staff ID"
+                  placeholder="Enter your email"
                 />
               </div>
             </div>
@@ -131,6 +146,8 @@ export const StaffLogin: React.FC = () => {
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                   className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
                   placeholder="Enter your password"

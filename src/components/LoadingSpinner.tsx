@@ -11,17 +11,10 @@ const sizeClasses = {
   lg: "w-16 h-16 border-4",
 };
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  size = "md",
-  color = "blue-500",
-}) => {
+export const LoadingSpinner: React.FC = () => {
   return (
-    <div
-      className={`${sizeClasses[size]} rounded-full border-gray-200 border-t-${color} animate-spin`}
-      role="status"
-      aria-label="Loading"
-    >
-      <span className="sr-only">Loading...</span>
+    <div className="flex justify-center items-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
     </div>
   );
 };

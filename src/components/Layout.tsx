@@ -199,7 +199,7 @@ const Layout = () => {
                   </div>
                   <div>
                     <h1 className="gov-title text-2xl font-bold text-gray-800 hover:text-primary transition-colors">
-                      Election Commission of India
+                      VoteX - Election Commission of India
                       <span className="block text-lg font-semibold text-secondary">
                         भारत निर्वाचन आयोग
                       </span>
@@ -399,6 +399,9 @@ const Layout = () => {
               </div>
               <p className="mt-2 text-sm text-center">
                 Last Updated: {new Date().toLocaleDateString("en-IN")}
+              </p>
+              <p className="mt-2 text-sm text-center text-gray-500">
+                Made with ❤️ by Indie Hub
               </p>
             </div>
           </div>

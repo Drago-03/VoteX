@@ -3,7 +3,7 @@
  * This is the root component that handles all the routing and page structure of the application.
  * It sets up the main navigation paths and protects certain routes that require authentication.
  */
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -22,6 +22,9 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import LegalDocument from "./pages/LegalDocument";
 import RTI from "./pages/RTI";
 import Careers from "./pages/Careers";
+import { auth } from "./firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
+import adminService from "./services/AdminService";
 
 // Loading component for Suspense fallback
 const Loading: React.FC = () => (
@@ -33,7 +36,29 @@ const Loading: React.FC = () => (
   </div>
 );
 
+// Protected Route component
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [user, loading] = useAuthState(auth);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/staff-login" />;
+  }
+
+  return <>{children}</>;
+};
+
 const App: React.FC = () => {
+  useEffect(() => {
+    // Initialize admin user when the app starts
+    adminService.initializeAdminUser().catch(console.error);
+  }, []);
+
   return (
     <LanguageProvider>
       <Router>

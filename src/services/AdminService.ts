@@ -7,8 +7,18 @@ import {
   query,
   where,
   getDocs,
+  deleteDoc,
+  updateDoc,
+  Timestamp,
 } from "firebase/firestore";
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  deleteUser,
+  User,
+} from "firebase/auth";
 
 interface VerificationRecord {
   timestamp: FirebaseFirestore.Timestamp;
@@ -16,16 +26,78 @@ interface VerificationRecord {
   // ... other fields
 }
 
+export interface AdminUser {
+  uid: string;
+  email: string;
+  displayName: string;
+  role: "admin" | "staff";
+  createdAt: Date;
+  lastLogin?: Date;
+}
+
 export class AdminService {
   private static instance: AdminService;
+  private usersCollection = collection(db, COLLECTIONS.USERS);
 
-  private constructor() {}
+  private constructor() {
+    this.initializeAdminUser();
+  }
 
   public static getInstance(): AdminService {
     if (!AdminService.instance) {
       AdminService.instance = new AdminService();
     }
     return AdminService.instance;
+  }
+
+  private async initializeAdminUser() {
+    const adminEmail = "admin@votex.com";
+    const adminPassword = "admin";
+
+    try {
+      // Check if admin user exists in Firestore
+      const adminQuery = query(
+        this.usersCollection,
+        where("email", "==", adminEmail)
+      );
+      const adminDocs = await getDocs(adminQuery);
+
+      if (adminDocs.empty) {
+        // Create admin user in Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          adminEmail,
+          adminPassword
+        );
+        const { user } = userCredential;
+
+        // Store admin user in Firestore
+        await this.createUserDocument(user.uid, {
+          email: adminEmail,
+          displayName: "Admin",
+          role: "admin" as const,
+          createdAt: new Date(),
+        });
+
+        console.log("Admin user created successfully");
+      } else {
+        console.log("Admin user already exists");
+      }
+    } catch (error) {
+      console.error("Error initializing admin user:", error);
+      throw error;
+    }
+  }
+
+  private async createUserDocument(
+    uid: string,
+    userData: Omit<AdminUser, "uid">
+  ) {
+    const userRef = doc(this.usersCollection, uid);
+    await setDoc(userRef, {
+      ...userData,
+      createdAt: Timestamp.fromDate(userData.createdAt),
+    });
   }
 
   /**
@@ -189,6 +261,80 @@ export class AdminService {
       return data.ip;
     } catch (error) {
       return "unknown";
+    }
+  }
+
+  public async createStaffUser(
+    email: string,
+    password: string,
+    displayName: string
+  ): Promise<AdminUser> {
+    try {
+      // Create user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      // Set user profile
+      await updateProfile(userCredential.user, {
+        displayName,
+      });
+
+      // Create user document
+      const userData: AdminUser = {
+        uid: userCredential.user.uid,
+        email,
+        displayName,
+        role: "staff",
+        createdAt: new Date(),
+      };
+
+      await setDoc(
+        doc(db, COLLECTIONS.USERS, userCredential.user.uid),
+        userData
+      );
+
+      return userData;
+    } catch (error) {
+      console.error("Error creating staff user:", error);
+      throw error;
+    }
+  }
+
+  public async getAllUsers(): Promise<AdminUser[]> {
+    try {
+      const usersSnapshot = await getDocs(collection(db, COLLECTIONS.USERS));
+      return usersSnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        createdAt: doc.data().createdAt.toDate(),
+        lastLogin: doc.data().lastLogin?.toDate(),
+      })) as AdminUser[];
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      throw error;
+    }
+  }
+
+  public async deleteUser(uid: string): Promise<void> {
+    try {
+      await deleteDoc(doc(db, COLLECTIONS.USERS, uid));
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      throw error;
+    }
+  }
+
+  public async updateUserRole(
+    uid: string,
+    role: "admin" | "staff"
+  ): Promise<void> {
+    try {
+      await updateDoc(doc(db, COLLECTIONS.USERS, uid), { role });
+    } catch (error) {
+      console.error("Error updating user role:", error);
+      throw error;
     }
   }
 }

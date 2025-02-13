@@ -1,12 +1,24 @@
 import { db, COLLECTIONS } from "../firebase";
-import { doc, setDoc } from "firebase/firestore";
-import { getFunctions, httpsCallable } from "firebase/functions";
+import { doc, addDoc, collection } from "firebase/firestore";
+
+interface AadhaarVerificationResult {
+  success: boolean;
+  error?: string;
+  aadhaarId?: string;
+  voterId?: string;
+  name?: string;
+  fatherName?: string;
+  address?: string;
+  constituency?: string;
+}
 
 export class AadhaarService {
   private static instance: AadhaarService;
-  private functions = getFunctions();
+  private isInitialized: boolean = false;
 
-  private constructor() {}
+  private constructor() {
+    this.initialize();
+  }
 
   public static getInstance(): AadhaarService {
     if (!AadhaarService.instance) {
@@ -15,65 +27,95 @@ export class AadhaarService {
     return AadhaarService.instance;
   }
 
-  /**
-   * Verify Aadhaar details using UIDAI API
-   * This will be called through a Firebase Cloud Function to keep the API key secure
-   */
-  public async verifyAadhaar(
-    aadhaarNumber: string,
-    voterId: string
-  ): Promise<boolean> {
+  private async initialize(): Promise<void> {
+    if (this.isInitialized) return;
+
+    // Add any initialization logic here
+    this.isInitialized = true;
+  }
+
+  public async verifyBiometricAndPhoto(
+    biometricData: string,
+    photoData: string
+  ): Promise<AadhaarVerificationResult> {
     try {
-      const verifyAadhaarFunction = httpsCallable(
-        this.functions,
-        "verifyAadhaar"
-      );
-      const result = await verifyAadhaarFunction({ aadhaarNumber });
+      // In a real implementation, this would:
+      // 1. Call UIDAI API to verify biometric and photo
+      // 2. Get voter details from Aadhaar database
+      // 3. Return verified information
+
+      // For demo purposes, we'll simulate a successful verification
+      const mockResult: AadhaarVerificationResult = {
+        success: true,
+        aadhaarId: "1234-5678-9012",
+        voterId: "ABC1234567",
+        name: "John Doe",
+        fatherName: "Richard Doe",
+        address: "123 Main St, New Delhi",
+        constituency: "New Delhi Central",
+      };
 
       // Log the verification attempt
-      await this.logVerificationAttempt(
-        aadhaarNumber,
-        voterId,
-        result.data as any
-      );
-
-      return (result.data as any).success;
-    } catch (error: unknown) {
-      console.error("Aadhaar verification error:", error);
-      await this.logVerificationAttempt(aadhaarNumber, voterId, {
-        error:
-          error instanceof Error ? error.message : "Unknown error occurred",
+      await addDoc(collection(db, COLLECTIONS.AUDIT_LOGS), {
+        type: "aadhaar_verification",
+        timestamp: new Date(),
+        success: true,
+        biometric_verified: true,
+        photo_verified: true,
+        aadhaar_id: mockResult.aadhaarId,
+        voter_id: mockResult.voterId,
       });
-      throw new Error("Aadhaar verification failed");
+
+      return mockResult;
+    } catch (error) {
+      console.error("Aadhaar verification failed:", error);
+
+      // Log the failure
+      await addDoc(collection(db, COLLECTIONS.AUDIT_LOGS), {
+        type: "aadhaar_verification",
+        timestamp: new Date(),
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+
+      return {
+        success: false,
+        error: "Aadhaar verification failed. Please try again.",
+      };
     }
   }
 
-  /**
-   * Log Aadhaar verification attempts for audit
-   */
-  private async logVerificationAttempt(
-    aadhaarNumber: string,
-    voterId: string,
-    result: any
-  ): Promise<void> {
-    const maskedAadhaar = this.maskAadhaarNumber(aadhaarNumber);
+  public async verifyAadhaarNumber(
+    aadhaarNumber: string
+  ): Promise<AadhaarVerificationResult> {
+    try {
+      // In a real implementation, this would verify the Aadhaar number with UIDAI
+      // For demo purposes, we'll simulate the verification
+      if (!/^\d{12}$/.test(aadhaarNumber)) {
+        throw new Error("Invalid Aadhaar number format");
+      }
 
-    await setDoc(doc(db, COLLECTIONS.AUDIT_LOGS, `aadhaar_${Date.now()}`), {
-      type: "aadhaar_verification",
-      voterId,
-      maskedAadhaar,
-      success: result.success || false,
-      error: result.error || null,
-      timestamp: new Date(),
-    });
-  }
-
-  /**
-   * Mask Aadhaar number for security
-   */
-  private maskAadhaarNumber(aadhaarNumber: string): string {
-    return `XXXX-XXXX-${aadhaarNumber.slice(-4)}`;
+      return {
+        success: true,
+        aadhaarId: aadhaarNumber,
+        voterId: "ABC1234567",
+        name: "John Doe",
+        fatherName: "Richard Doe",
+        address: "123 Main St, New Delhi",
+        constituency: "New Delhi Central",
+      };
+    } catch (error) {
+      console.error("Aadhaar number verification failed:", error);
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Aadhaar verification failed",
+      };
+    }
   }
 }
 
+// Export a singleton instance
 export default AadhaarService.getInstance();

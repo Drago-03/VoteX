@@ -49,21 +49,42 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-// Get the root element
-const rootElement = document.getElementById("root");
+// Function to remove the loader
+const removeLoader = () => {
+  const loader = document.querySelector(".initial-loader") as HTMLElement;
+  if (loader) {
+    loader.style.animation = "fadeOut 0.3s ease-out forwards";
+    setTimeout(() => {
+      loader.remove();
+    }, 300);
+  }
+};
 
-// Ensure root element exists
-if (!rootElement) {
-  throw new Error("Failed to find the root element");
+// Initialize the app
+const initializeApp = () => {
+  const rootElement = document.getElementById("root");
+  if (!rootElement) {
+    throw new Error("Failed to find the root element");
+  }
+
+  const root = ReactDOM.createRoot(rootElement);
+
+  // Render the app
+  root.render(
+    <React.StrictMode>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </React.StrictMode>
+  );
+
+  // Remove the loader after a short delay
+  setTimeout(removeLoader, 1000);
+};
+
+// Start the app when the document is ready
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeApp);
+} else {
+  initializeApp();
 }
-
-// Create root and render application
-const root = ReactDOM.createRoot(rootElement);
-
-root.render(
-  <React.StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  </React.StrictMode>
-);
